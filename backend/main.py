@@ -17,7 +17,7 @@ from backend.config import Settings, get_settings
 from backend.database import models as database_models  # noqa: F401
 from backend.database.database import initialize_database
 from backend.models.response_models import HealthResponse
-from backend.routes import agents, ai, dashboard, optimize, simulation
+from backend.routes import agents, ai, analytics, dashboard, optimize, simulation
 from backend.utils.exceptions import EcoSphereError
 from backend.utils.logger import configure_logging, get_logger
 
@@ -106,6 +106,7 @@ def create_application(settings: Settings | None = None) -> FastAPI:
     application.include_router(optimize.router)
     application.include_router(dashboard.router)
     application.include_router(agents.router)
+    application.include_router(analytics.router)
 
     static_dir = Path(__file__).parent / "static"
     if static_dir.is_dir():

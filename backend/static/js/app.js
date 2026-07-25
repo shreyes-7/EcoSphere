@@ -173,6 +173,11 @@ async function loadOptimizationAgentMatrix() {
     if (!res.ok) return;
     const data = await res.json();
 
+    if (data.simulation_id) {
+      const optSimInput = document.getElementById('opt-sim-id');
+      if (optSimInput) optSimInput.value = data.simulation_id;
+    }
+
     const container = document.getElementById('opt-agent-matrix');
     container.innerHTML = data.agents.map(agent => `
       <div class="agent-card">
@@ -280,18 +285,25 @@ function bindFormEvents() {
       }
 
       const result = await res.json();
+      window.latestClosedLoopRunId = result.closed_loop_run_id;
       showToast(`Closed Loop #${result.closed_loop_run_id} finished! Saved ${result.total_energy_saved_percent}%`, 'success');
 
       const card = document.getElementById('closed-loop-results-card');
       card.style.display = 'block';
 
       document.getElementById('closed-loop-breakdown').innerHTML = `
-        <div style="margin-bottom: 1rem;">
-          <strong>Status:</strong> ${result.status} | 
-          <strong>Iterations:</strong> ${result.total_iterations} | 
-          <strong>Baseline:</strong> ${result.baseline_energy} kWh → 
-          <strong>Final:</strong> ${result.final_energy} kWh | 
-          <strong>Stop Reason:</strong> <span style="color: var(--primary-emerald);">${result.stop_reason}</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div>
+            <strong>Status:</strong> ${result.status} | 
+            <strong>Iterations:</strong> ${result.total_iterations} | 
+            <strong>Baseline:</strong> ${result.baseline_energy} kWh → 
+            <strong>Final:</strong> ${result.final_energy} kWh | 
+            <strong>Stop Reason:</strong> <span style="color: var(--primary-emerald);">${result.stop_reason}</span>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="downloadReport('csv')">📥 CSV</button>
+            <button class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="downloadReport('json')">📥 JSON</button>
+          </div>
         </div>
         <div class="table-container">
           <table class="table">
@@ -430,41 +442,45 @@ async function showExplainabilityModal(optId) {
     if (!res.ok) throw new Error('Failed to load explanation report');
     const exp = await res.json();
 
-    document.getElementById('modal-title').innerText = `Explainable AI Report (Optimization #${exp.optimization_id})`;
-    document.getElementById('modal-subtitle').innerText = `Generated at ${new Date(exp.timestamp).toLocaleString()}`;
+    const reportId = exp.optimization_id || exp.history_id || optId;
+    const recText = exp.recommendation || exp.final_recommendation || 'Recommendation approved';
+    const reasonText = exp.reason || exp.supervisor_explanation || 'Consensus recommendation reached across all specialist agents.';
+
+    document.getElementById('modal-title').innerText = `Explainable AI Report (Optimization #${reportId})`;
+    document.getElementById('modal-subtitle').innerText = exp.timestamp ? `Generated at ${new Date(exp.timestamp).toLocaleString()}` : 'Latest Real-Time Report';
 
     document.getElementById('modal-content').innerHTML = `
       <div class="card" style="margin-bottom: 1rem; background: rgba(15, 23, 42, 0.8);">
         <div style="font-size: 1.1rem; font-weight: 700; color: var(--primary-emerald); margin-bottom: 0.5rem;">
           Final Consensus Recommendation
         </div>
-        <div>${exp.final_recommendation}</div>
+        <div>${recText}</div>
       </div>
 
       <div class="grid-2" style="margin-bottom: 1rem;">
         <div class="agent-card">
           <div class="kpi-title">Confidence Score</div>
-          <div class="kpi-value" style="font-size: 1.5rem;">${Math.round(exp.confidence * 100)}%</div>
+          <div class="kpi-value" style="font-size: 1.5rem;">${Math.round((exp.confidence || 0) * 100)}%</div>
         </div>
         <div class="agent-card">
           <div class="kpi-title">Expected Savings</div>
-          <div class="kpi-value" style="font-size: 1.5rem; color: var(--primary-emerald);">${exp.expected_savings}%</div>
+          <div class="kpi-value" style="font-size: 1.5rem; color: var(--primary-emerald);">${exp.expected_savings || 0}%</div>
         </div>
       </div>
 
       <div class="card" style="margin-bottom: 1rem; background: rgba(15, 23, 42, 0.8);">
         <div class="card-title" style="margin-bottom: 0.5rem;">Decision Explanation</div>
-        <p class="agent-rec-text">${exp.reason}</p>
+        <p class="agent-rec-text">${reasonText}</p>
       </div>
 
       <div class="grid-2">
         <div class="agent-card">
           <div class="kpi-title">Comfort Impact Rule</div>
-          <div style="font-size: 0.85rem; color: var(--text-main); margin-top: 0.3rem;">${exp.comfort_impact}</div>
+          <div style="font-size: 0.85rem; color: var(--text-main); margin-top: 0.3rem;">${exp.comfort_impact || 'Comfort preserved.'}</div>
         </div>
         <div class="agent-card">
           <div class="kpi-title">Carbon Impact Rule</div>
-          <div style="font-size: 0.85rem; color: var(--text-main); margin-top: 0.3rem;">${exp.carbon_impact}</div>
+          <div style="font-size: 0.85rem; color: var(--text-main); margin-top: 0.3rem;">${exp.carbon_impact || 'Carbon emissions reduced.'}</div>
         </div>
       </div>
     `;
@@ -494,4 +510,11 @@ function showToast(message, type = 'info') {
 
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 4000);
+}
+
+function downloadReport(format) {
+  const runId = window.latestClosedLoopRunId || 1;
+  const url = `/analytics/export/${format}/${runId}`;
+  window.open(url, '_blank');
+  showToast(`Downloading ${format.toUpperCase()} report for Run #${runId}...`, 'info');
 }

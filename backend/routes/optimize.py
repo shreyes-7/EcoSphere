@@ -159,7 +159,10 @@ def get_optimization_explanation(
     try:
         repo = OptimizationRepository(database_session)
         service = ExplainabilityService(repo)
-        return service.get_explanation_by_optimization_id(optimization_id)
+        try:
+            return service.get_explanation_by_history_id(optimization_id)
+        except Exception:
+            return service.get_explanation_by_optimization_id(optimization_id)
     except EcoSphereError as error:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
 

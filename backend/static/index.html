@@ -256,9 +256,17 @@
         <div class="card">
           <div class="card-header">
             <h2 class="card-title">Closed-Loop Optimization History</h2>
-            <button type="button" class="btn btn-secondary" id="btn-refresh-history">
-              <span>🔄 Refresh Log</span>
-            </button>
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="button" class="btn btn-secondary" id="btn-export-csv" onclick="downloadReport('csv')">
+                <span>📥 Export CSV</span>
+              </button>
+              <button type="button" class="btn btn-secondary" id="btn-export-json" onclick="downloadReport('json')">
+                <span>📥 Export JSON</span>
+              </button>
+              <button type="button" class="btn btn-secondary" id="btn-refresh-history">
+                <span>🔄 Refresh</span>
+              </button>
+            </div>
           </div>
           <div class="table-container">
             <table class="table" id="history-table">
