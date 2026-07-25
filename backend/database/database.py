@@ -29,6 +29,8 @@ class Base(DeclarativeBase):
 
 def initialize_database() -> None:
     """Create tables and add Phase 2 simulation columns to SQLite databases."""
+    import backend.database.models  # noqa: F401
+
     Base.metadata.create_all(bind=engine)
     if not settings.database_url.startswith("sqlite"):
         return

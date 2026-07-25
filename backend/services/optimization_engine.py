@@ -11,7 +11,7 @@ from backend.utils.logger import get_logger
 
 
 class OptimizationEngine:
-    """Create and persist supervisor-approved optimization plans."""
+    """Create and persist supervisor-approved optimization plans and history records."""
 
     def __init__(
         self,
@@ -23,19 +23,24 @@ class OptimizationEngine:
         self._supervisor = supervisor
         self._logger = get_logger(__name__)
 
-    def run(self, simulation_id: int, iteration: int = 1) -> OptimizationExecution:
+    def run(
+        self,
+        simulation_id: int,
+        iteration: int = 1,
+        closed_loop_run_id: int | None = None,
+    ) -> OptimizationExecution:
         """Run one independent optimization iteration for a completed simulation.
 
         Args:
             simulation_id: Completed simulation that supplies baseline metrics.
-            iteration: Positive logical iteration number; persistence of detailed
-                iteration history is introduced in Phase 3.
+            iteration: Positive logical iteration number.
+            closed_loop_run_id: Optional ID of an existing closed-loop run session.
 
         Returns:
-            The persisted, supervisor-approved optimization execution.
+            The persisted, supervisor-approved optimization execution including history IDs.
 
         Raises:
-            OptimizationError: If metrics are unavailable or the plan cannot persist.
+            OptimizationError: If metrics are unavailable or history cannot persist.
         """
         if iteration < 1:
             raise OptimizationError("Optimization iteration must be at least one")
@@ -52,14 +57,30 @@ class OptimizationEngine:
         if baseline_energy is None:
             raise OptimizationError("Simulation baseline energy is unavailable")
 
-        optimization = self._repository.save_plan(
-            simulation_id=simulation_id,
-            energy_before=baseline_energy,
-            expected_savings=plan.expected_savings,
-            recommendation=application.recommendation,
+        closed_loop_run = (
+            self._repository.get_or_create_closed_loop_run(simulation_id)
+            if closed_loop_run_id is None
+            else None
         )
+        effective_run_id = (
+            closed_loop_run_id
+            if closed_loop_run_id is not None
+            else (closed_loop_run.id if closed_loop_run else None)
+        )
+
+        optimization, opt_history, metrics_hist = self._repository.save_optimization_iteration(
+            simulation_id=simulation_id,
+            iteration=iteration,
+            energy_before=baseline_energy,
+            metrics=metrics,
+            plan=plan,
+            closed_loop_run_id=effective_run_id,
+        )
+
         execution = OptimizationExecution(
             optimization_id=optimization.id,
+            history_id=opt_history.id,
+            closed_loop_run_id=effective_run_id,
             simulation_id=simulation_id,
             iteration=iteration,
             metrics=metrics,
@@ -67,9 +88,10 @@ class OptimizationEngine:
             application_status=application.status,
         )
         self._logger.info(
-            "Optimization plan persisted: simulation_id=%s optimization_id=%s iteration=%s",
+            "Optimization history persisted: simulation_id=%s optimization_id=%s history_id=%s iteration=%s",
             simulation_id,
             optimization.id,
+            opt_history.id,
             iteration,
         )
         return execution
@@ -94,3 +116,4 @@ class OptimizationEngine:
             status="planned",
             recommendation=plan.final_recommendation,
         )
+
