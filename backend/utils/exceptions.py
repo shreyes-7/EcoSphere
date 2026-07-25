@@ -23,3 +23,7 @@ class SimulationError(EcoSphereError):
 
 class OllamaError(EcoSphereError):
     """Raised when Ollama cannot process a request."""
+
+
+class OptimizationError(EcoSphereError):
+    """Raised when an optimization workflow cannot complete."""
