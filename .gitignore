@@ -4,5 +4,15 @@ __pycache__/
 .env
 logs/
 energyplus/output/
+simulation_output/
+scratch/
+uploads/
+frontend/dist/
+frontend/node_modules/
 *.sqlite3
 *.db
+
+# Local Agent & Task Files (Kept local, excluded from Git)
+.agents/
+TASKS.md
+CODING_RULES.md

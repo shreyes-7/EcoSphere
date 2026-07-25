@@ -69,14 +69,26 @@ class ExplainabilityService:
         return explanation_response
 
     def get_explanation_by_history_id(self, history_id: int) -> OptimizationExplanationResponse:
-        """Retrieve and format an explainable decision report from an OptimizationHistory ID."""
-        history = self._repository.get_optimization_history(history_id)
-        return self._format_history_record(history)
+        """Retrieve and format an explainable decision report from an OptimizationHistory ID or Simulation ID."""
+        try:
+            history = self._repository.get_optimization_history(history_id)
+            return self._format_history_record(history)
+        except Exception:
+            histories = self._repository.get_history_by_simulation(history_id)
+            if histories:
+                return self._format_history_record(histories[-1])
+            raise
 
     def get_explanation_by_optimization_id(self, optimization_id: int) -> OptimizationExplanationResponse:
-        """Retrieve and format an explainable decision report from a legacy Optimization ID."""
-        history = self._repository.get_optimization_history_by_optimization_id(optimization_id)
-        return self._format_history_record(history, optimization_id=optimization_id)
+        """Retrieve and format an explainable decision report from a legacy Optimization ID or Simulation ID."""
+        try:
+            history = self._repository.get_optimization_history_by_optimization_id(optimization_id)
+            return self._format_history_record(history, optimization_id=optimization_id)
+        except Exception:
+            histories = self._repository.get_history_by_simulation(optimization_id)
+            if histories:
+                return self._format_history_record(histories[-1])
+            raise
 
     def _format_history_record(
         self,

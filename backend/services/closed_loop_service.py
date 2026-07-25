@@ -156,9 +156,9 @@ class ClosedLoopService:
                 self._logger.info("Target energy reduction achieved (%.2f%% >= %.2f%%)", cumulative_savings, loop_config.target_reduction_percent)
                 break
 
-            if iteration > 1 and actual_savings < loop_config.min_improvement_threshold_percent:
+            if iteration > 1 and actual_savings <= 0.0:
                 stop_reason = "min_improvement_threshold_not_met"
-                self._logger.info("Minimum improvement threshold not met (%.2f%% < %.2f%%)", actual_savings, loop_config.min_improvement_threshold_percent)
+                self._logger.info("No further energy improvement achieved in iteration %s", iteration)
                 break
 
             current_energy = new_energy
@@ -186,15 +186,16 @@ class ClosedLoopService:
         )
 
     def _build_idf_modifications(self, plan: OptimizationPlan, iteration: int) -> IDFModifications:
-        """Translate supervisor plan into typed IDF setpoint and schedule modifications."""
-        cooling_setpoint = min(22.0 + (iteration * 0.5), 25.0)
-        heating_setpoint = max(21.0 - (iteration * 0.5), 19.0)
-        lighting_mult = max(1.0 - (iteration * 0.05), 0.80)
-        occupancy_mult = max(1.0 - (iteration * 0.02), 0.90)
+        """Translate supervisor plan into typed IDF setpoint and schedule modifications for the iteration."""
+        # Incremental setpoint tuning scaled strictly by iteration count
+        cooling_setpoint = 22.0 + (iteration * 0.5)
+        heating_setpoint = max(18.0, 21.0 - (iteration * 0.5))
+        lighting_mult = max(0.65, 1.0 - (iteration * 0.05))
+        occupancy_mult = max(0.80, 1.0 - (iteration * 0.02))
 
         return IDFModifications(
-            cooling_setpoint=cooling_setpoint,
-            heating_setpoint=heating_setpoint,
+            cooling_setpoint=min(max(cooling_setpoint, 21.5), 26.0),
+            heating_setpoint=min(max(heating_setpoint, 18.0), 21.5),
             lighting_multiplier=lighting_mult,
             occupancy_multiplier=occupancy_mult,
         )
@@ -208,25 +209,21 @@ class ClosedLoopService:
         previous_energy: float,
         expected_savings_percent: float,
     ) -> float:
-        """Run EnergyPlus or custom simulation runner to calculate follow-up energy metrics."""
+        """Run EnergyPlus CLI simulation on modified IDF file and return real parsed energy metrics."""
         if self._custom_simulation_runner is not None:
             return self._custom_simulation_runner(idf_path, weather_path, output_dir)
 
         try:
-            exe = self._energyplus_service.validate_energyplus()
-            if not exe.is_file():
-                raise FileNotFoundError(f"EnergyPlus binary missing: {exe}")
             run_meta = self._energyplus_service.run_simulation(idf_path, weather_path, output_dir)
             results = self._energyplus_service.read_results(run_meta.output_folder)
-            return float(results.get("electricity", results.get("total_energy", previous_energy)))
+            
+            new_electricity = float(results.get("electricity", results.get("total_energy", 0.0)))
+            if new_electricity <= 0:
+                raise OptimizationError(f"Iteration #{iteration} simulation produced non-positive electricity: {new_electricity}")
+            return new_electricity
         except Exception as error:
-            self._logger.warning(
-                "EnergyPlus execution unavailable for iteration %s: %s; using projected model",
-                iteration,
-                error,
-            )
-            reduction_factor = max(0.95 - (iteration * 0.02), 0.80)
-            return round(previous_energy * reduction_factor, 2)
+            self._logger.error("Simulation failed for iteration %s: %s", iteration, error)
+            raise OptimizationError(f"Closed-loop iteration #{iteration} simulation failed: {error}") from error
 
     def _update_closed_loop_run_status(
         self,

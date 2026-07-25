@@ -80,3 +80,27 @@ def export_json_report(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(error)
         ) from error
+
+
+@router.get(
+    "/export/markdown/{closed_loop_run_id}",
+    summary="Export closed-loop run analytics as Markdown report",
+)
+def export_markdown_report(
+    closed_loop_run_id: int,
+    database_session: Session = Depends(get_db),
+) -> Response:
+    """Generate and download a Markdown analytics report for a closed-loop run session."""
+    try:
+        service = AnalyticsService(database_session)
+        md_content = service.export_markdown_report(closed_loop_run_id)
+        filename = f"ecosphere_run_{closed_loop_run_id:06d}.md"
+        return Response(
+            content=md_content,
+            media_type="text/markdown",
+            headers={"Content-Disposition": f"attachment; filename={filename}"},
+        )
+    except EcoSphereError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(error)
+        ) from error

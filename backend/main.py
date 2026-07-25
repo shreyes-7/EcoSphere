@@ -109,7 +109,8 @@ def create_application(settings: Settings | None = None) -> FastAPI:
     application.include_router(analytics.router)
     application.include_router(monitoring.router)
 
-    static_dir = Path(__file__).parent / "static"
+    frontend_dist_dir = Path(__file__).parent.parent / "frontend" / "dist"
+    static_dir = frontend_dist_dir if frontend_dist_dir.is_dir() else (Path(__file__).parent / "static")
     if static_dir.is_dir():
         application.mount("/app", StaticFiles(directory=str(static_dir), html=True), name="static_app")
 

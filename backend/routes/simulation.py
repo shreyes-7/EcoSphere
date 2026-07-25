@@ -71,29 +71,24 @@ async def run_simulation(
     try:
         service.run_simulation(uploaded_idf, uploaded_weather, output_folder)
         energy = service.read_results(output_folder)
+
         simulation.electricity = energy["electricity"]
         simulation.cooling = energy["cooling"]
         simulation.heating = energy["heating"]
         simulation.hvac = energy["hvac"]
-        simulation.total_energy = energy["electricity"]
+        simulation.total_energy = energy.get("electricity", energy.get("total_energy"))
         simulation.status = "completed"
         simulation.finished_at = current_timestamp()
         database_session.commit()
         database_session.refresh(simulation)
         logger.info("Simulation finished: id=%s", simulation.id)
         return simulation
-    except EcoSphereError:
-        simulation.status = "failed"
-        simulation.finished_at = current_timestamp()
-        database_session.commit()
-        logger.exception("Simulation failed: id=%s", simulation.id)
-        raise
     except Exception as error:
         simulation.status = "failed"
         simulation.finished_at = current_timestamp()
         database_session.commit()
-        logger.exception("Simulation failed unexpectedly: id=%s", simulation.id)
-        raise SimulationError("Simulation failed unexpectedly") from error
+        logger.exception("Simulation failed: id=%s", simulation.id)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"EnergyPlus simulation failed: {error}") from error
 
 
 class RunSimulationPathRequest(BaseModel):
@@ -133,21 +128,14 @@ def run_simulation_from_path(
     database_session.commit()
 
     try:
-        try:
-            ep_bin = Path(settings.energyplus_path)
-            if not ep_bin.is_file():
-                raise FileNotFoundError(f"EnergyPlus executable not found at {ep_bin}")
-            service.run_simulation(idf_path, weather_path, output_folder)
-            energy = service.read_results(output_folder)
-        except Exception as sim_err:
-            logger.warning("EnergyPlus simulation skipped or unavailable (%s); returning baseline metrics", sim_err)
-            energy = {"electricity": 160.0, "cooling": 70.0, "heating": 40.0, "hvac": 50.0, "total_energy": 200.0}
+        service.run_simulation(idf_path, weather_path, output_folder)
+        energy = service.read_results(output_folder)
 
-        simulation.electricity = energy.get("electricity", 160.0)
-        simulation.cooling = energy.get("cooling", 70.0)
-        simulation.heating = energy.get("heating", 40.0)
-        simulation.hvac = energy.get("hvac", 50.0)
-        simulation.total_energy = energy.get("electricity", energy.get("total_energy", 200.0))
+        simulation.electricity = energy["electricity"]
+        simulation.cooling = energy["cooling"]
+        simulation.heating = energy["heating"]
+        simulation.hvac = energy["hvac"]
+        simulation.total_energy = energy.get("electricity", energy.get("total_energy"))
         simulation.status = "completed"
         simulation.finished_at = current_timestamp()
         database_session.commit()
@@ -157,7 +145,35 @@ def run_simulation_from_path(
         simulation.status = "failed"
         simulation.finished_at = current_timestamp()
         database_session.commit()
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error)) from error
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"EnergyPlus simulation failed: {error}") from error
+
+
+@router.get("/list", response_model=list[SimulationResponse])
+def list_completed_simulations(
+    limit: int = 50,
+    database_session: Session = Depends(get_db),
+) -> list[Simulation]:
+    """Return list of completed simulation records for dropdown selection."""
+    return (
+        database_session.query(Simulation)
+        .filter(Simulation.status == "completed")
+        .order_by(Simulation.id.desc())
+        .limit(limit)
+        .all()
+    )
+
+
+@router.get("/latest", response_model=SimulationResponse)
+def get_latest_simulation(database_session: Session = Depends(get_db)) -> Simulation:
+    """Return the most recent simulation record."""
+    simulation = (
+        database_session.query(Simulation)
+        .order_by(Simulation.created_at.desc())
+        .first()
+    )
+    if simulation is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No simulations found")
+    return simulation
 
 
 @router.get("/status/{simulation_id}", response_model=SimulationResponse)

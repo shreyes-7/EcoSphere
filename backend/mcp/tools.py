@@ -41,10 +41,8 @@ def run_simulation_tool(
         output_dir_str = str(run_meta.output_folder)
         exec_sec = round(run_meta.execution_seconds, 2)
     except Exception as error:
-        logger.warning("EnergyPlus execution unavailable for MCP tool (%s); returning simulation metrics", error)
-        metrics = {"total_energy": 200.0, "electricity": 160.0, "cooling": 70.0, "heating": 40.0, "hvac": 50.0}
-        output_dir_str = str(out_folder or (app_settings.output_directory / "mcp_sim_fallback"))
-        exec_sec = 0.05
+        logger.error("EnergyPlus CLI execution failed for MCP tool: %s", error)
+        raise EcoSphereError(f"MCP run_simulation_tool failed: {error}") from error
 
     return {
         "status": "completed",

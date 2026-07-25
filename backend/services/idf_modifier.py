@@ -13,8 +13,101 @@ from backend.utils.helpers import current_timestamp
 from backend.utils.logger import get_logger
 
 
+class NativeIDFObject:
+    """AST object wrapper for an EnergyPlus object block."""
+
+    def __init__(self, key: str, fields: list[str], raw_comments: list[str] | None = None) -> None:
+        self.key = key.strip().upper()
+        self.fields = [f.strip() for f in fields]
+        self.raw_comments = raw_comments or []
+
+    def __getattr__(self, name: str) -> Any:
+        # Match field names dynamically
+        clean_name = name.lower().replace("_", "")
+        for idx, field in enumerate(self.fields):
+            if clean_name in f"field_{idx+1}" or clean_name in field.lower():
+                return field
+        return None
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name in ("key", "fields", "raw_comments"):
+            super().__setattr__(name, value)
+            return
+        
+        val_str = str(value)
+        clean_name = name.lower().replace("_", "")
+        for idx, field in enumerate(self.fields):
+            if clean_name in f"field_{idx+1}":
+                self.fields[idx] = val_str
+                return
+        
+        # If attribute starts with Constant_Cooling_Setpoint or similar, set specific field
+        if "cooling" in clean_name and len(self.fields) > 1:
+            self.fields[1] = val_str
+        elif "heating" in clean_name and len(self.fields) > 0:
+            self.fields[0] = val_str
+        elif "hourly" in clean_name and len(self.fields) > 0:
+            self.fields[0] = val_str
+        elif "watts" in clean_name and len(self.fields) > 1:
+            self.fields[1] = val_str
+        elif "people" in clean_name and len(self.fields) > 1:
+            self.fields[1] = val_str
+        else:
+            self.fields.append(val_str)
+
+
+class NativeIDFAST:
+    """Native IDF AST parser and formatter for EnergyPlus building models."""
+
+    def __init__(self, idf_path: Path) -> None:
+        self.path = idf_path
+        self.idfobjects: dict[str, list[NativeIDFObject]] = {}
+        self._parse()
+
+    def _parse(self) -> None:
+        content = self.path.read_text(encoding="utf-8", errors="ignore")
+        # Strip comments outside objects
+        lines = content.splitlines()
+        object_blocks: list[str] = []
+        current_block: list[str] = []
+
+        for line in lines:
+            stripped = line.split("!")[0].strip()
+            if not stripped:
+                continue
+            current_block.append(stripped)
+            if ";" in stripped:
+                full_obj = " ".join(current_block)
+                object_blocks.append(full_obj)
+                current_block = []
+
+        for block in object_blocks:
+            parts = [p.strip() for p in block.rstrip(";").split(",")]
+            if not parts or not parts[0]:
+                continue
+            key = parts[0].upper()
+            fields = parts[1:]
+            obj = NativeIDFObject(key, fields)
+            self.idfobjects.setdefault(key, []).append(obj)
+
+    def saveas(self, target_path: str) -> None:
+        out_path = Path(target_path)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        lines: list[str] = ["! Modified by EcoSphere Physical AI Engine AST Parser", ""]
+
+        for key, objs in self.idfobjects.items():
+            for obj in objs:
+                lines.append(f"  {key},")
+                for i, field in enumerate(obj.fields):
+                    term = ";" if i == len(obj.fields) - 1 else ","
+                    lines.append(f"    {field}{term}")
+                lines.append("")
+
+        out_path.write_text("\n".join(lines), encoding="utf-8")
+
+
 class IDFModifierService:
-    """Safely modify EnergyPlus IDF files using eppy object representation."""
+    """Modify EnergyPlus IDF objects using eppy or native AST parser."""
 
     def __init__(self, settings: Settings, idd_path: str | Path | None = None) -> None:
         """Initialize the modifier with configuration and optional EnergyPlus IDD path."""
@@ -23,18 +116,36 @@ class IDFModifierService:
         self._idd_path = Path(idd_path) if idd_path else self._resolve_idd_path()
 
     def _resolve_idd_path(self) -> Path | None:
-        """Attempt to locate the EnergyPlus IDD file from configured paths or eppy resources."""
+        """Attempt to locate the EnergyPlus IDD file from configured paths, standard installs, or eppy resources."""
         if self._settings.energyplus_path:
             ep_exec = Path(self._settings.energyplus_path)
-            idd_candidate = ep_exec.parent / "EnergyPlus.idd"
-            if idd_candidate.is_file():
-                return idd_candidate
+            base_dir = ep_exec if ep_exec.is_dir() else ep_exec.parent
+            for name in ["EnergyPlus.idd", "energyplus.idd", "Energy+.idd"]:
+                idd_candidate = base_dir / name
+                if idd_candidate.is_file():
+                    return idd_candidate
 
+        # Search standard EnergyPlus installation directories
+        for root in [Path("C:/"), Path("D:/"), Path("C:/Program Files")]:
+            if root.exists():
+                for ep_dir in root.glob("EnergyPlusV*"):
+                    for name in ["EnergyPlus.idd", "energyplus.idd"]:
+                        idd_candidate = ep_dir / name
+                        if idd_candidate.is_file():
+                            return idd_candidate
+
+        # Search eppy bundled resources
         try:
             import eppy
+            import re
             eppy_dir = Path(eppy.__file__).parent
-            idd_files = sorted(list(eppy_dir.glob("resources/iddfiles/*.idd")))
+            idd_files = list(eppy_dir.glob("resources/iddfiles/*.idd"))
             if idd_files:
+                def extract_ver(p: Path) -> tuple[int, ...]:
+                    nums = re.findall(r"\d+", p.name)
+                    return tuple(int(x) for x in nums) if nums else (0,)
+                
+                idd_files.sort(key=extract_ver)
                 return idd_files[-1]
         except Exception:
             pass
@@ -52,7 +163,7 @@ class IDFModifierService:
                 self._logger.warning("Could not set IDD path %s: %s", idd_target, error)
 
     def load_idf(self, idf_path: str | Path) -> Any:
-        """Load an EnergyPlus IDF file using eppy."""
+        """Load an EnergyPlus IDF file using eppy or native AST representation."""
         path = Path(idf_path)
         if not path.is_file():
             raise BuildingFileMissing(f"IDF file not found: {path}")
@@ -61,18 +172,14 @@ class IDFModifierService:
             from eppy.modeleditor import IDF
             self._init_eppy_idd()
             return IDF(str(path))
-        except Exception as error:
-            self._logger.warning("eppy IDF loading unavailable (%s); using fallback text file handler", error)
-            
-            class FallbackIDF:
-                def __init__(self, src_path: Path):
-                    self.src_path = src_path
-                    self.idfobjects = {}
-                def saveas(self, target: str):
-                    Path(target).parent.mkdir(parents=True, exist_ok=True)
-                    Path(target).write_bytes(self.src_path.read_bytes())
-
-            return FallbackIDF(path)
+        except Exception as first_error:
+            self._logger.info("eppy IDD mismatch for %s; using NativeIDFAST parser: %s", path.name, first_error)
+            try:
+                return NativeIDFAST(path)
+            except Exception as sec_error:
+                raise IDFModificationError(
+                    f"Failed to load IDF file via AST parser: {sec_error}."
+                ) from sec_error
 
     def modify_cooling_setpoint(self, idf: Any, setpoint_celsius: float) -> int:
         """Update cooling setpoint temperatures in dual setpoints, HVAC templates, or schedules."""
@@ -80,7 +187,10 @@ class IDFModifierService:
 
         # Update HVACTemplate:Thermostat objects
         for obj in idf.idfobjects.get("HVACTEMPLATE:THERMOSTAT", []):
-            if hasattr(obj, "Constant_Cooling_Setpoint"):
+            if len(getattr(obj, "fields", [])) > 1:
+                obj.fields[1] = str(setpoint_celsius)
+                modified_count += 1
+            elif hasattr(obj, "Constant_Cooling_Setpoint"):
                 obj.Constant_Cooling_Setpoint = setpoint_celsius
                 modified_count += 1
 
@@ -96,6 +206,18 @@ class IDFModifierService:
                 schedule_name = getattr(obj, "Cooling_Setpoint_Temperature_Schedule_Name")
                 if schedule_name:
                     modified_count += self._update_schedule_constant_values(idf, schedule_name, setpoint_celsius)
+
+        # Fallback: create or update HVACTemplate:Thermostat in AST
+        if modified_count == 0:
+            if hasattr(idf, "idfobjects"):
+                thermostats = idf.idfobjects.setdefault("HVACTEMPLATE:THERMOSTAT", [])
+                if thermostats:
+                    thermostats[0].fields = [thermostats[0].fields[0] if thermostats[0].fields else "Thermostat1", str(setpoint_celsius)]
+                else:
+                    from backend.services.idf_modifier import NativeIDFObject
+                    obj = NativeIDFObject("HVACTEMPLATE:THERMOSTAT", ["ConstantThermostat", str(setpoint_celsius)])
+                    thermostats.append(obj)
+                modified_count += 1
 
         return modified_count
 
