@@ -187,6 +187,18 @@ def compare_simulations(
             detail=f"One or both simulations not found: {simulation_id_1}, {simulation_id_2}",
         )
 
+    if sim1.status != "completed" or (sim1.electricity is None and sim1.total_energy is None):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Baseline Simulation #{simulation_id_1} is uncompleted or missing energy metrics",
+        )
+
+    if sim2.status != "completed" or (sim2.electricity is None and sim2.total_energy is None):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Optimized Simulation #{simulation_id_2} is uncompleted or missing energy metrics",
+        )
+
     e1 = sim1.electricity if sim1.electricity is not None else (sim1.total_energy or 0.0)
     e2 = sim2.electricity if sim2.electricity is not None else (sim2.total_energy or 0.0)
 

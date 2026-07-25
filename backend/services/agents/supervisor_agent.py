@@ -35,6 +35,10 @@ class SupervisorAgent(BaseAgent):
 
     def coordinate(self, metrics: BuildingMetrics) -> OptimizationPlan:
         """Collect specialist recommendations and produce a resolved final plan."""
+        import time
+        from backend.services.monitoring_service import MonitoringService
+
+        started_at = time.perf_counter()
         recommendations = [agent.analyze(metrics) for agent in self._agents]
         resolved_recommendations = self.resolve_conflicts(recommendations)
         plan = OptimizationPlan(
@@ -44,10 +48,23 @@ class SupervisorAgent(BaseAgent):
             explanation=self._plan_explanation(resolved_recommendations),
             expected_savings=self._plan_savings(resolved_recommendations),
         )
+        duration_ms = (time.perf_counter() - started_at) * 1000.0
+
+        MonitoringService.record_log(
+            agent=self.agent_name,
+            recommendation=plan.final_recommendation,
+            reason=plan.explanation,
+            confidence=plan.confidence,
+            priority="high",
+            execution_time_ms=duration_ms,
+            expected_savings=plan.expected_savings,
+        )
+
         self._logger.info(
-            "Supervisor plan produced: recommendations=%s confidence=%.2f",
+            "Supervisor plan produced: recommendations=%s confidence=%.2f latency=%.2fms",
             len(plan.recommendations),
             plan.confidence,
+            duration_ms,
         )
         return plan
 

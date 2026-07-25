@@ -225,22 +225,30 @@ class OptimizationRepository:
         return history
 
     def update_optimization_history_results(
-        self, history_id: int, energy_after: float, actual_savings: float
+        self,
+        history_id: int,
+        energy_after: float,
+        actual_savings: float,
+        recommendation: str | None = None,
     ) -> None:
-        """Update energy_after and actual_savings for a completed iteration in OptimizationHistory."""
+        """Update energy_after, actual_savings, and recommendation for a completed iteration in OptimizationHistory."""
         opt_hist = self._database_session.get(OptimizationHistory, history_id)
         if opt_hist is not None:
             opt_hist.energy_after = energy_after
             opt_hist.actual_savings = actual_savings
+            if recommendation is not None:
+                opt_hist.final_recommendation = recommendation
 
             opt = (
                 self._database_session.query(Optimization)
-                .filter_by(simulation_id=opt_hist.simulation_id, recommendation=opt_hist.final_recommendation)
+                .filter_by(simulation_id=opt_hist.simulation_id)
                 .order_by(Optimization.timestamp.desc())
                 .first()
             )
             if opt is not None:
                 opt.energy_after = energy_after
+                if recommendation is not None:
+                    opt.recommendation = recommendation
 
             try:
                 self._database_session.commit()

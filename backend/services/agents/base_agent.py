@@ -20,7 +20,11 @@ class BaseAgent(ABC):
         self._logger = get_logger(f"{__name__}.{self.__class__.__name__}")
 
     def analyze(self, metrics: BuildingMetrics) -> AgentRecommendation:
-        """Build an explainable recommendation from simulation metrics."""
+        """Build an explainable recommendation from simulation metrics with latency telemetry."""
+        import time
+        from backend.services.monitoring_service import MonitoringService
+
+        started_at = time.perf_counter()
         recommendation = self.recommend(metrics)
         result = AgentRecommendation(
             agent=self.agent_name,
@@ -32,11 +36,24 @@ class BaseAgent(ABC):
             carbon_impact=self.carbon_impact(metrics),
             priority=self.priority(metrics),
         )
+        duration_ms = (time.perf_counter() - started_at) * 1000.0
+
+        MonitoringService.record_log(
+            agent=self.agent_name,
+            recommendation=result.recommendation,
+            reason=result.explanation,
+            confidence=result.confidence,
+            priority=result.priority,
+            execution_time_ms=duration_ms,
+            expected_savings=result.expected_savings,
+        )
+
         self._logger.info(
-            "Agent recommendation produced: agent=%s confidence=%.2f priority=%s",
+            "Agent recommendation produced: agent=%s confidence=%.2f priority=%s latency=%.2fms",
             result.agent,
             result.confidence,
             result.priority,
+            duration_ms,
         )
         return result
 

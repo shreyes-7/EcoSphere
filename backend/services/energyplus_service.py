@@ -47,6 +47,12 @@ class EnergyPlusService:
         executable = configured_path / "EnergyPlus.exe" if configured_path.is_dir() else configured_path
         if not executable.is_file():
             raise EnergyPlusNotFound(f"EnergyPlus executable not found: {executable}")
+        
+        # Check if the file is an EnergyPlus installer setup executable rather than CLI binary
+        if executable.stat().st_size > 100 * 1024 * 1024:
+            raise EnergyPlusNotFound(
+                f"Configured ENERGYPLUS_PATH points to installer setup package ({executable.name}); using EcoSphere simulation engine"
+            )
         return executable
 
     def validate_weather(self, weather_file: str | Path) -> Path:

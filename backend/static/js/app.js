@@ -33,6 +33,16 @@ function switchView(targetId) {
   if (targetId === 'overview') loadDashboardData();
   if (targetId === 'history') fetchHistory();
   if (targetId === 'optimization') loadOptimizationAgentMatrix();
+  if (targetId === 'compare') {
+    const s1Input = document.getElementById('cmp-sim-1');
+    const s2Input = document.getElementById('cmp-sim-2');
+    if (s1Input && s2Input && s1Input.value === s2Input.value) {
+      s1Input.value = '2';
+      s2Input.value = '3';
+    }
+    const btn = document.getElementById('btn-compare-runs');
+    if (btn) btn.click();
+  }
 }
 
 // Chart Instances
@@ -405,6 +415,7 @@ function updateCompareChart(data) {
 
 async function fetchHistory() {
   try {
+    loadStructuredLogs();
     const res = await fetch('/optimize/history?limit=20');
     if (!res.ok) throw new Error('Failed to load history');
     const data = await res.json();
@@ -433,6 +444,54 @@ async function fetchHistory() {
     `).join('');
   } catch (err) {
     showToast(err.message, 'error');
+  }
+}
+
+async function loadStructuredLogs() {
+  try {
+    const agentFilter = document.getElementById('log-agent-filter')?.value || '';
+    const logsRes = await fetch(`/monitoring/logs?limit=25${agentFilter ? `&agent=${agentFilter}` : ''}`);
+    const metricsRes = await fetch('/monitoring/metrics');
+
+    if (logsRes.ok) {
+      const logsData = await logsRes.json();
+      const body = document.getElementById('telemetry-logs-body');
+      if (body) {
+        if (logsData.logs.length === 0) {
+          body.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No logs recorded yet. Run an agent or optimization session.</td></tr>`;
+        } else {
+          body.innerHTML = logsData.logs.map(log => `
+            <tr>
+              <td style="font-size: 0.8rem; color: var(--text-muted);">${new Date(log.timestamp).toLocaleTimeString()}</td>
+              <td><span class="priority-badge priority-${log.level === 'ERROR' ? 'critical' : 'low'}">${log.level}</span></td>
+              <td><strong>${getAgentIcon(log.agent)} ${capitalize(log.agent)}</strong></td>
+              <td><strong style="color: var(--primary-cyan);">${log.execution_time_ms} ms</strong></td>
+              <td>${Math.round(log.confidence * 100)}%</td>
+              <td style="font-size: 0.85rem;">${log.recommendation}</td>
+            </tr>
+          `).join('');
+        }
+      }
+    }
+
+    if (metricsRes.ok) {
+      const metricsData = await metricsRes.json();
+      const statsBox = document.getElementById('telemetry-stats-box');
+      if (statsBox) {
+        statsBox.innerHTML = `
+          <div class="agent-card">
+            <div class="kpi-title">Total Agent Evaluations</div>
+            <div class="kpi-value" style="font-size: 1.5rem;">${metricsData.total_evaluations}</div>
+          </div>
+          <div class="agent-card">
+            <div class="kpi-title">Avg Execution Latency</div>
+            <div class="kpi-value" style="font-size: 1.5rem; color: var(--primary-cyan);">${metricsData.avg_execution_time_ms} ms</div>
+          </div>
+        `;
+      }
+    }
+  } catch (err) {
+    console.error('Structured log load error:', err);
   }
 }
 

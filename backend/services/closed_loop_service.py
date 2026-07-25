@@ -119,10 +119,13 @@ class ClosedLoopService:
             actual_savings = ((current_energy - new_energy) / current_energy) * 100.0 if current_energy > 0 else 0.0
             cumulative_savings = ((baseline_energy - new_energy) / baseline_energy) * 100.0
 
+            iter_recommendation = self._get_iteration_action_text(iteration, execution.plan)
+
             self._repository.update_optimization_history_results(
                 history_id=execution.history_id,
                 energy_after=new_energy,
                 actual_savings=round(actual_savings, 2),
+                recommendation=iter_recommendation,
             )
 
             summary_item = ClosedLoopIterationSummary(
@@ -133,7 +136,7 @@ class ClosedLoopService:
                 expected_savings=execution.plan.expected_savings,
                 actual_savings=round(actual_savings, 2),
                 cumulative_savings=round(cumulative_savings, 2),
-                recommendation=execution.plan.final_recommendation,
+                recommendation=iter_recommendation,
                 timestamp=current_timestamp(),
             )
             iterations_summary.append(summary_item)
@@ -240,3 +243,16 @@ class ClosedLoopService:
             run.total_energy_saved = total_saved
             run.current_iteration = total_iterations
             session.commit()
+
+    def _get_iteration_action_text(self, iteration: int, plan: OptimizationPlan) -> str:
+        """Generate iteration-specific action description matching setpoint & schedule adjustments."""
+        cooling_setpoint = min(22.0 + (iteration * 0.5), 25.0)
+        lighting_pct = min(iteration * 5, 20)
+        actions = [
+            f"Set cooling setpoint to {cooling_setpoint:.1f}°C and curtail high-carbon discretionary load.",
+            f"Set cooling setpoint to {cooling_setpoint:.1f}°C and reduce lighting power density by {lighting_pct}%.",
+            f"Set cooling setpoint to {cooling_setpoint:.1f}°C and optimize peak-period HVAC scheduling.",
+            f"Set cooling setpoint to {cooling_setpoint:.1f}°C and apply maximum building energy efficiency schedule.",
+        ]
+        index = (iteration - 1) % len(actions)
+        return actions[index]
