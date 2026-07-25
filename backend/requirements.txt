@@ -45,3 +45,8 @@ python-multipart==0.0.20
 plotly==6.9.0
 narwhals==2.24.0
 packaging==25.0
+
+# ==========================
+# MCP Protocol
+# ==========================
+mcp>=1.0.0

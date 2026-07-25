@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import Any
 
 from backend.config import Settings
 from backend.schemas.agent_schemas import AgentRecommendation, BuildingMetrics, OptimizationPlan, Priority
@@ -138,6 +139,27 @@ class SupervisorAgent(BaseAgent):
     def _plan_savings(self, recommendations: Sequence[AgentRecommendation]) -> float:
         estimated_savings = sum(item.expected_savings for item in recommendations)
         return min(round(estimated_savings, 2), self._settings.max_expected_savings_percent)
+
+    def execute_mcp_tool(self, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any]:
+        """Invoke an EcoSphere MCP building intelligence tool on behalf of the supervisor agent."""
+        from backend.mcp import tools as mcp_tools
+
+        tool_map = {
+            "run_simulation": mcp_tools.run_simulation_tool,
+            "modify_idf": mcp_tools.modify_idf_tool,
+            "read_results": mcp_tools.read_results_tool,
+            "compare_runs": mcp_tools.compare_runs_tool,
+            "history": mcp_tools.history_tool,
+            "optimize_building": mcp_tools.optimize_building_tool,
+        }
+
+        if tool_name not in tool_map:
+            raise ValueError(f"Unknown MCP tool: '{tool_name}'. Available tools: {list(tool_map.keys())}")
+
+        self._logger.info("Supervisor invoking MCP tool '%s' with arguments: %s", tool_name, list(arguments.keys()))
+        handler = tool_map[tool_name]
+        return handler(**arguments)
+
 
 
 def create_default_supervisor(settings: Settings) -> SupervisorAgent:
