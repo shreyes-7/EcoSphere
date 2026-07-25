@@ -27,3 +27,8 @@ class OllamaError(EcoSphereError):
 
 class OptimizationError(EcoSphereError):
     """Raised when an optimization workflow cannot complete."""
+
+
+class IDFModificationError(EcoSphereError):
+    """Raised when an IDF modification cannot be applied safely."""
+
