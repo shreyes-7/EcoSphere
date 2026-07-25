@@ -9,11 +9,13 @@ from typing import AsyncIterator
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from pathlib import Path
+from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from backend.config import Settings, get_settings
-from backend.database.database import initialize_database
 from backend.database import models as database_models  # noqa: F401
+from backend.database.database import initialize_database
 from backend.models.response_models import HealthResponse
 from backend.routes import agents, ai, dashboard, optimize, simulation
 from backend.utils.exceptions import EcoSphereError
@@ -94,11 +96,21 @@ def create_application(settings: Settings | None = None) -> FastAPI:
             version=application_settings.app_version,
         )
 
+    @application.get("/dashboard", tags=["Dashboard"], include_in_schema=False)
+    async def dashboard_redirect() -> RedirectResponse:
+        """Redirect legacy dashboard path to static UI."""
+        return RedirectResponse(url="/app/")
+
     application.include_router(ai.router)
     application.include_router(simulation.router)
     application.include_router(optimize.router)
     application.include_router(dashboard.router)
     application.include_router(agents.router)
+
+    static_dir = Path(__file__).parent / "static"
+    if static_dir.is_dir():
+        application.mount("/app", StaticFiles(directory=str(static_dir), html=True), name="static_app")
+
     return application
 
 

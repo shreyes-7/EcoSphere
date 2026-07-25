@@ -224,4 +224,28 @@ class OptimizationRepository:
             raise OptimizationError(f"No history found for optimization: {optimization_id}")
         return history
 
+    def update_optimization_history_results(
+        self, history_id: int, energy_after: float, actual_savings: float
+    ) -> None:
+        """Update energy_after and actual_savings for a completed iteration in OptimizationHistory."""
+        opt_hist = self._database_session.get(OptimizationHistory, history_id)
+        if opt_hist is not None:
+            opt_hist.energy_after = energy_after
+            opt_hist.actual_savings = actual_savings
+
+            opt = (
+                self._database_session.query(Optimization)
+                .filter_by(simulation_id=opt_hist.simulation_id, recommendation=opt_hist.final_recommendation)
+                .order_by(Optimization.timestamp.desc())
+                .first()
+            )
+            if opt is not None:
+                opt.energy_after = energy_after
+
+            try:
+                self._database_session.commit()
+            except Exception as error:
+                self._database_session.rollback()
+                raise OptimizationError("Unable to update optimization iteration results") from error
+
 

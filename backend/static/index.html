@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoSphere | AI Building Energy Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/app/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <header class="navbar">
+    <div class="brand">
+      <div class="brand-logo">E</div>
+      <div class="brand-title">EcoSphere AI</div>
+    </div>
+    <div class="status-badge">
+      <div class="pulse-dot"></div>
+      <span>Multi-Agent System Active</span>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <div class="main-container">
+    
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+      <div class="nav-item active" data-target="overview">
+        <span class="nav-icon">📊</span>
+        <span>Dashboard Overview</span>
+      </div>
+      <div class="nav-item" data-target="simulation">
+        <span class="nav-icon">⚡</span>
+        <span>Simulation Runner</span>
+      </div>
+      <div class="nav-item" data-target="optimization">
+        <span class="nav-icon">🤖</span>
+        <span>Multi-Agent Optimization</span>
+      </div>
+      <div class="nav-item" data-target="compare">
+        <span class="nav-icon">📈</span>
+        <span>Energy Comparison</span>
+      </div>
+      <div class="nav-item" data-target="history">
+        <span class="nav-icon">📜</span>
+        <span>Historical Log & AI Reports</span>
+      </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+
+      <!-- View 1: Dashboard Overview -->
+      <section id="view-overview" class="page-view active">
+        <div class="page-header">
+          <h1 class="page-title">Building Energy Intelligence</h1>
+          <p class="page-subtitle">Real-time telemetry, multi-agent status, and autonomous closed-loop performance.</p>
+        </div>
+
+        <div class="grid-4">
+          <div class="card kpi-card">
+            <div class="kpi-title">Total Simulations</div>
+            <div class="kpi-value" id="kpi-total-sims">0</div>
+            <div class="kpi-sub">✓ Operational Database</div>
+          </div>
+          <div class="card kpi-card">
+            <div class="kpi-title">Closed-Loop Runs</div>
+            <div class="kpi-value" id="kpi-closed-loops">0</div>
+            <div class="kpi-sub">⚡ Autonomous Executions</div>
+          </div>
+          <div class="card kpi-card">
+            <div class="kpi-title">Total Energy Saved</div>
+            <div class="kpi-value" id="kpi-saved-kwh">0.0 kWh</div>
+            <div class="kpi-sub" id="kpi-avg-savings">Avg 0.0% Reduction</div>
+          </div>
+          <div class="card kpi-card">
+            <div class="kpi-title">Active AI Agents</div>
+            <div class="kpi-value" id="kpi-agents">4</div>
+            <div class="kpi-sub">🛡️ Energy, Comfort, Cost, Carbon</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Real-Time Energy Consumption Breakdown</h2>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="overview-chart"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Supervisor Resolution & Latest Plan</h2>
+            </div>
+            <div id="supervisor-summary-box">
+              <p class="agent-rec-text" id="supervisor-rec-text">Loading latest multi-agent consensus plan...</p>
+              <div class="agent-grid" id="overview-agent-cards">
+                <!-- Agent cards dynamically rendered -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- View 2: Simulation Runner -->
+      <section id="view-simulation" class="page-view">
+        <div class="page-header">
+          <h1 class="page-title">Building Upload & Simulation Runner</h1>
+          <p class="page-subtitle">Execute physics-based EnergyPlus simulations with custom IDF geometry and EPW weather files.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Trigger New Simulation</h2>
+            </div>
+            <form id="sim-run-form">
+              <div class="form-group">
+                <label class="form-label">Building Name</label>
+                <input type="text" id="sim-building-name" class="form-control" value="Commercial Test Facility" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">IDF Model File Path</label>
+                <input type="text" id="sim-idf-file" class="form-control" value="energyplus/building.idf" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">EPW Weather File Path</label>
+                <input type="text" id="sim-weather-file" class="form-control" value="weather/weather.epw" required>
+              </div>
+              <button type="submit" class="btn btn-primary" id="btn-run-sim">
+                <span>⚡ Run EnergyPlus Simulation</span>
+              </button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Simulation Output Metrics</h2>
+            </div>
+            <div id="sim-result-box">
+              <p class="agent-rec-text" style="color: var(--text-muted);">Run a simulation or select a record to inspect baseline energy metrics.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- View 3: Multi-Agent Optimization -->
+      <section id="view-optimization" class="page-view">
+        <div class="page-header">
+          <h1 class="page-title">Autonomous Multi-Agent Closed-Loop Optimization</h1>
+          <p class="page-subtitle">Coordinated multi-agent reasoning, eppy AST modifications, and automated iterative loop execution.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Closed-Loop Session Controls</h2>
+            </div>
+            <form id="opt-start-form">
+              <div class="form-group">
+                <label class="form-label">Target Simulation ID</label>
+                <input type="number" id="opt-sim-id" class="form-control" value="1" min="1" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Max Closed-Loop Iterations</label>
+                <input type="number" id="opt-max-iter" class="form-control" value="5" min="1" max="20" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Target Energy Reduction (%)</label>
+                <input type="number" id="opt-target-reduction" class="form-control" value="15.0" step="0.5" min="1" max="50" required>
+              </div>
+              <button type="submit" class="btn btn-primary" id="btn-start-closed-loop">
+                <span>🚀 Execute Autonomous Closed Loop</span>
+              </button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Specialist Agent Reasoning Matrix</h2>
+            </div>
+            <div class="agent-grid" id="opt-agent-matrix">
+              <!-- Agent reasoning rendered here -->
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="closed-loop-results-card" style="display: none;">
+          <div class="card-header">
+            <h2 class="card-title">Closed-Loop Iteration Progress Report</h2>
+          </div>
+          <div id="closed-loop-breakdown"></div>
+        </div>
+      </section>
+
+      <!-- View 4: Energy Comparison -->
+      <section id="view-compare" class="page-view">
+        <div class="page-header">
+          <h1 class="page-title">Baseline vs. Optimized Energy Performance</h1>
+          <p class="page-subtitle">Side-by-side component breakdown of electricity, HVAC, heating, and cooling savings.</p>
+        </div>
+
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-header">
+            <h2 class="card-title">Select Simulation Runs to Compare</h2>
+          </div>
+          <div style="display: flex; gap: 1rem; align-items: flex-end;">
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+              <label class="form-label">Baseline Simulation ID</label>
+              <input type="number" id="cmp-sim-1" class="form-control" value="1" min="1">
+            </div>
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+              <label class="form-label">Optimized Simulation ID</label>
+              <input type="number" id="cmp-sim-2" class="form-control" value="2" min="1">
+            </div>
+            <button type="button" class="btn btn-primary" id="btn-compare-runs">
+              <span>📈 Compare Performance</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Energy Savings Comparison Chart</h2>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="compare-chart"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Savings Metrics Summary</h2>
+            </div>
+            <div id="compare-metrics-box">
+              <p class="agent-rec-text" style="color: var(--text-muted);">Click "Compare Performance" to calculate energy savings.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- View 5: Historical Log -->
+      <section id="view-history" class="page-view">
+        <div class="page-header">
+          <h1 class="page-title">Historical Log & Explainable AI Reports</h1>
+          <p class="page-subtitle">Review closed-loop history records and detailed agent decision rationales.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Closed-Loop Optimization History</h2>
+            <button type="button" class="btn btn-secondary" id="btn-refresh-history">
+              <span>🔄 Refresh Log</span>
+            </button>
+          </div>
+          <div class="table-container">
+            <table class="table" id="history-table">
+              <thead>
+                <tr>
+                  <th>Opt ID</th>
+                  <th>Sim ID</th>
+                  <th>Iter</th>
+                  <th>Before (kWh)</th>
+                  <th>After (kWh)</th>
+                  <th>Saved (%)</th>
+                  <th>Recommendation</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="history-table-body">
+                <!-- Rows loaded via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Explainability Report Modal -->
+  <div class="modal-backdrop" id="modal-explain">
+    <div class="modal-card">
+      <button class="modal-close" id="modal-close-btn">&times;</button>
+      <div class="page-header" style="margin-bottom: 1rem;">
+        <h2 class="page-title" id="modal-title">Explainable AI Report</h2>
+        <p class="page-subtitle" id="modal-subtitle">Detailed multi-agent reasoning breakdown</p>
+      </div>
+      <div id="modal-content">
+        <!-- Content dynamically injected -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/app/js/app.js"></script>
+</body>
+</html>

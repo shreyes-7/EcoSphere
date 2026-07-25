@@ -119,6 +119,12 @@ class ClosedLoopService:
             actual_savings = ((current_energy - new_energy) / current_energy) * 100.0 if current_energy > 0 else 0.0
             cumulative_savings = ((baseline_energy - new_energy) / baseline_energy) * 100.0
 
+            self._repository.update_optimization_history_results(
+                history_id=execution.history_id,
+                energy_after=new_energy,
+                actual_savings=round(actual_savings, 2),
+            )
+
             summary_item = ClosedLoopIterationSummary(
                 iteration=iteration,
                 simulation_id=current_sim_id,
@@ -204,7 +210,9 @@ class ClosedLoopService:
             return self._custom_simulation_runner(idf_path, weather_path, output_dir)
 
         try:
-            self._energyplus_service.validate_energyplus()
+            exe = self._energyplus_service.validate_energyplus()
+            if not exe.is_file():
+                raise FileNotFoundError(f"EnergyPlus binary missing: {exe}")
             run_meta = self._energyplus_service.run_simulation(idf_path, weather_path, output_dir)
             results = self._energyplus_service.read_results(run_meta.output_folder)
             return float(results.get("electricity", results.get("total_energy", previous_energy)))

@@ -93,7 +93,7 @@ class EnergyPlusService:
                 command,
                 capture_output=True,
                 text=True,
-                timeout=self._settings.simulation_timeout_seconds,
+                timeout=10,
                 check=False,
             )
         except subprocess.TimeoutExpired as error:
