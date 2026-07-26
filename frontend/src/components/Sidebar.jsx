@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   ChevronRight,
   Sparkles,
+  Info,
   Zap
 } from 'lucide-react';
 
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
   { id: 'comparison', label: 'Energy Comparison Studio', icon: BarChart3 },
   { id: 'history', label: 'Historical Log & XAI', icon: History },
   { id: 'telemetry', label: 'System Telemetry & Logs', icon: Activity },
+  { id: 'about', label: 'About EcoSphere', icon: Info },
 ];
 
 export default function Sidebar({ activeTab, setActiveTab }) {

@@ -12,6 +12,8 @@ import Optimization from './pages/Optimization';
 import Comparison from './pages/Comparison';
 import History from './pages/History';
 import Telemetry from './pages/Telemetry';
+import About from './pages/About';
+import Footer from './components/Footer';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -111,6 +113,8 @@ export default function App() {
         return <History setToast={setToast} />;
       case 'telemetry':
         return <Telemetry setToast={setToast} />;
+      case 'about':
+        return <About onNavigate={setActiveTab} />;
       default:
         return <Overview latestSimulation={latestSimulation} supervisorPlan={supervisorPlan} setToast={setToast} />;
     }
@@ -137,19 +141,23 @@ export default function App() {
         />
 
         {/* Dynamic Page Container with Framer Motion Page Transition */}
-        <main className="flex-1 overflow-y-auto p-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18, ease: 'easeInOut' }}
-              className="max-w-7xl mx-auto"
-            >
-              {renderActiveTab()}
-            </motion.div>
-          </AnimatePresence>
+        <main className="flex-1 overflow-y-auto p-8 flex flex-col justify-between">
+          <div className="w-full">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18, ease: 'easeInOut' }}
+                className="max-w-7xl mx-auto"
+              >
+                {renderActiveTab()}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          <Footer onNavigate={setActiveTab} />
         </main>
       </div>
     </div>
