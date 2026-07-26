@@ -80,6 +80,7 @@ class ClosedLoopService:
         iterations_summary: list[ClosedLoopIterationSummary] = []
         stop_reason: StopReason = "max_iterations_reached"
         cumulative_savings = 0.0
+        consecutive_no_improvement = 0
 
         self._logger.info(
             "Starting closed-loop run: id=%s simulation_id=%s baseline_energy=%.2f max_iter=%s target_reduction=%.1f%%",
@@ -97,7 +98,12 @@ class ClosedLoopService:
                 closed_loop_run_id=closed_loop_run.id,
             )
 
-            modifications = self._build_idf_modifications(execution.plan, iteration)
+            modifications = self._build_idf_modifications(
+                plan=execution.plan,
+                iteration=iteration,
+                max_iterations=loop_config.max_iterations,
+                target_reduction=loop_config.target_reduction_percent,
+            )
             output_dir = self._settings.output_directory / f"closed_loop_{closed_loop_run.id:06d}"
             modified_idf_path = output_dir / f"iteration_{iteration:02d}.idf"
 
@@ -151,14 +157,30 @@ class ClosedLoopService:
             )
 
             # Evaluate Stopping Conditions
-            if cumulative_savings >= loop_config.target_reduction_percent:
-                stop_reason = "target_reduction_achieved"
-                self._logger.info("Target energy reduction achieved (%.2f%% >= %.2f%%)", cumulative_savings, loop_config.target_reduction_percent)
+            # Only stop early if we have run at least half the iterations AND
+            # there have been 2 consecutive iterations with no improvement
+            if actual_savings <= 0.0:
+                consecutive_no_improvement += 1
+            else:
+                consecutive_no_improvement = 0
+
+            half_way = iteration >= max(2, loop_config.max_iterations // 2)
+            if half_way and consecutive_no_improvement >= 2:
+                stop_reason = "min_improvement_threshold_not_met"
+                self._logger.info(
+                    "Stopping early: 2 consecutive iterations with no improvement at iteration %s (cumulative=%.2f%%)",
+                    iteration,
+                    cumulative_savings,
+                )
                 break
 
-            if iteration > 1 and actual_savings <= 0.0:
-                stop_reason = "min_improvement_threshold_not_met"
-                self._logger.info("No further energy improvement achieved in iteration %s", iteration)
+            if cumulative_savings >= loop_config.target_reduction_percent and iteration >= loop_config.max_iterations:
+                stop_reason = "target_reduction_achieved"
+                self._logger.info(
+                    "Target energy reduction achieved on final iteration (%.2f%% >= %.2f%%)",
+                    cumulative_savings,
+                    loop_config.target_reduction_percent,
+                )
                 break
 
             current_energy = new_energy
@@ -185,13 +207,19 @@ class ClosedLoopService:
             iterations=iterations_summary,
         )
 
-    def _build_idf_modifications(self, plan: OptimizationPlan, iteration: int) -> IDFModifications:
+    def _build_idf_modifications(
+        self, plan: OptimizationPlan, iteration: int, max_iterations: int = 4, target_reduction: float = 15.0
+    ) -> IDFModifications:
         """Translate supervisor plan into typed IDF setpoint and schedule modifications for the iteration."""
-        # Incremental setpoint tuning scaled strictly by iteration count
-        cooling_setpoint = 22.0 + (iteration * 0.5)
-        heating_setpoint = max(18.0, 21.0 - (iteration * 0.5))
-        lighting_mult = max(0.65, 1.0 - (iteration * 0.05))
-        occupancy_mult = max(0.80, 1.0 - (iteration * 0.02))
+        # Progressively scale tuning step per iteration so N iterations run smoothly up to target reduction
+        progress_ratio = iteration / float(max(1, max_iterations))
+        target_step_savings = target_reduction * progress_ratio
+
+        # Calculate incremental setpoint adjustments
+        cooling_setpoint = 22.0 + (target_step_savings * 0.12)
+        heating_setpoint = max(18.0, 21.0 - (target_step_savings * 0.08))
+        lighting_mult = max(0.65, 1.0 - (target_step_savings * 0.015))
+        occupancy_mult = max(0.80, 1.0 - (target_step_savings * 0.008))
 
         return IDFModifications(
             cooling_setpoint=min(max(cooling_setpoint, 21.5), 26.0),
