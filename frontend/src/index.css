@@ -68,6 +68,71 @@
   box-shadow: 0 15px 35px -10px rgba(16, 185, 129, 0.15);
 }
 
+/* Cyber Glow Borders */
+.border-glow-emerald {
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 20px -3px rgba(16, 185, 129, 0.25);
+}
+
+.border-glow-cyan {
+  border-color: rgba(6, 182, 212, 0.4);
+  box-shadow: 0 0 20px -3px rgba(6, 182, 212, 0.25);
+}
+
+.border-glow-violet {
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 0 0 20px -3px rgba(139, 92, 246, 0.25);
+}
+
+.border-glow-rose {
+  border-color: rgba(244, 63, 94, 0.4);
+  box-shadow: 0 0 20px -3px rgba(244, 63, 94, 0.25);
+}
+
+/* Neon Badge Pills */
+.neon-pill-emerald {
+  background: rgba(16, 185, 129, 0.1);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.neon-pill-cyan {
+  background: rgba(6, 182, 212, 0.1);
+  color: #38bdf8;
+  border: 1px solid rgba(6, 182, 212, 0.25);
+}
+
+.neon-pill-violet {
+  background: rgba(139, 92, 246, 0.1);
+  color: #c084fc;
+  border: 1px solid rgba(139, 92, 246, 0.25);
+}
+
+.neon-pill-rose {
+  background: rgba(244, 63, 94, 0.1);
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.25);
+}
+
+/* Animations */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-float {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
 /* Custom Sleek Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -84,311 +149,5 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #10b981;
-}
-
-/* ==========================================================================
-   LIGHT THEME DESIGN SYSTEM (Clean, Premium Apple/Stripe Light Palette)
-   ========================================================================== */
-.light-theme {
-  color-scheme: light;
-}
-
-.light-theme body {
-  background-color: #f8fafc !important;
-  color: #0f172a !important;
-}
-
-/* Light Theme Background Pattern */
-.light-theme .amoled-grid-bg {
-  background-color: #f8fafc !important;
-  background-image: 
-    radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 85% 25%, rgba(6, 182, 212, 0.04) 0%, transparent 40%),
-    radial-gradient(circle at 50% 85%, rgba(139, 92, 246, 0.04) 0%, transparent 50%),
-    linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px) !important;
-  background-size: 100% 100%, 100% 100%, 100% 100%, 48px 48px, 48px 48px !important;
-}
-
-/* Cards, Glass Panels & Modals */
-.light-theme .amoled-card,
-.light-theme .glass-card,
-.light-theme .glass-panel {
-  background: #ffffff !important;
-  border-color: #e2e8f0 !important;
-  color: #0f172a !important;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03) !important;
-}
-
-.light-theme .amoled-card-hover:hover {
-  transform: translateY(-3px);
-  border-color: rgba(16, 185, 129, 0.5) !important;
-  box-shadow: 0 12px 28px -6px rgba(16, 185, 129, 0.15) !important;
-}
-
-/* Header, Sidebar, Footer Containers */
-.light-theme header {
-  background: rgba(255, 255, 255, 0.95) !important;
-  border-color: #e2e8f0 !important;
-  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05) !important;
-}
-
-.light-theme aside {
-  background: #ffffff !important;
-  border-color: #e2e8f0 !important;
-  box-shadow: 1px 0 3px 0 rgba(15, 23, 42, 0.03) !important;
-}
-
-.light-theme footer > div {
-  background: #ffffff !important;
-  border-color: #e2e8f0 !important;
-}
-
-/* Typography Hierarchy in Light Mode */
-.light-theme h1,
-.light-theme h2,
-.light-theme h3,
-.light-theme h4,
-.light-theme h5,
-.light-theme h6,
-.light-theme .text-white {
-  color: #0f172a !important;
-}
-
-.light-theme .text-slate-100,
-.light-theme .text-slate-200,
-.light-theme .text-slate-300 {
-  color: #1e293b !important;
-}
-
-.light-theme .text-slate-400 {
-  color: #475569 !important;
-}
-
-.light-theme .text-slate-500 {
-  color: #64748b !important;
-}
-
-/* Target ALL Tailwind Slate/Black Opacity Sub-containers in Light Mode */
-.light-theme [class*="bg-slate-950"],
-.light-theme [class*="bg-slate-900"],
-.light-theme [class*="bg-slate-800"],
-.light-theme [class*="bg-slate-700"],
-.light-theme [class*="bg-black"] {
-  background-color: #f1f5f9 !important;
-  border-color: #e2e8f0 !important;
-  color: #0f172a !important;
-}
-
-/* Inner metric sub-boxes on cards (Peak Demand, Optimized Peak, Iterations Log) */
-.light-theme .amoled-card [class*="bg-slate-"],
-.light-theme .glass-card [class*="bg-slate-"],
-.light-theme .glass-panel [class*="bg-slate-"] {
-  background-color: #f8fafc !important;
-  border-color: #e2e8f0 !important;
-  color: #0f172a !important;
-}
-
-.light-theme .amoled-card [class*="bg-slate-"] span,
-.light-theme .amoled-card [class*="bg-slate-"] p,
-.light-theme .glass-card [class*="bg-slate-"] span,
-.light-theme .glass-card [class*="bg-slate-"] p {
-  color: #0f172a !important;
-}
-
-/* Special Overrides for Thermal Zone Cards in Digital Twin */
-.light-theme .bg-emerald-950\/30 {
-  background-color: #f0fdf4 !important;
-  border-color: #bbf7d0 !important;
-  color: #065f46 !important;
-}
-.light-theme .bg-yellow-950\/30 {
-  background-color: #fefce8 !important;
-  border-color: #fef08a !important;
-  color: #854d0e !important;
-}
-.light-theme .bg-orange-950\/30 {
-  background-color: #fff7ed !important;
-  border-color: #fed7aa !important;
-  color: #9a3412 !important;
-}
-.light-theme .bg-rose-950\/30 {
-  background-color: #fff1f2 !important;
-  border-color: #fecdd3 !important;
-  color: #9f1239 !important;
-}
-.light-theme .bg-cyan-950\/30 {
-  background-color: #ecfeff !important;
-  border-color: #a5f3fc !important;
-  color: #155e75 !important;
-}
-
-/* Sidebar Menu Button Styling in Light Mode */
-.light-theme aside button {
-  color: #475569 !important;
-}
-
-.light-theme aside button:hover {
-  background-color: #f1f5f9 !important;
-  color: #0f172a !important;
-}
-
-.light-theme aside [class*="bg-emerald-500"] {
-  background-color: #ecfdf5 !important;
-  border-color: #a7f3d0 !important;
-  color: #059669 !important;
-}
-
-/* Primary Action Buttons (Execute Closed Loop / Launch Closed Loop) in Light Mode */
-.light-theme .bg-gradient-to-r {
-  background: linear-gradient(135deg, #059669 0%, #0d9488 50%, #0891b2 100%) !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 14px 0 rgba(13, 148, 136, 0.35) !important;
-}
-
-.light-theme .bg-gradient-to-r *,
-.light-theme button.bg-gradient-to-r span,
-.light-theme button.bg-gradient-to-r svg {
-  color: #ffffff !important;
-  fill: currentColor !important;
-}
-
-.light-theme .text-slate-950 {
-  color: #ffffff !important;
-}
-
-/* Secondary Action Buttons (Refresh, Theme Toggle, Run Physics Sim) in Light Mode */
-.light-theme button[class*="bg-slate-900"] {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-  border-color: #cbd5e1 !important;
-  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.06) !important;
-}
-
-.light-theme button[class*="bg-slate-900"]:hover {
-  background-color: #f8fafc !important;
-  border-color: #94a3b8 !important;
-  color: #0f172a !important;
-}
-
-/* Accent Color Text & Badges in Light Mode */
-.light-theme .text-emerald-400,
-.light-theme .text-emerald-300 {
-  color: #059669 !important;
-}
-
-.light-theme .text-cyan-400,
-.light-theme .text-cyan-300 {
-  color: #0891b2 !important;
-}
-
-.light-theme .text-amber-400,
-.light-theme .text-amber-300 {
-  color: #d97706 !important;
-}
-
-.light-theme .text-rose-400,
-.light-theme .text-rose-300 {
-  color: #e11d48 !important;
-}
-
-.light-theme .text-purple-400,
-.light-theme .text-purple-300 {
-  color: #7c3aed !important;
-}
-
-.light-theme .text-yellow-400,
-.light-theme .text-yellow-300 {
-  color: #ca8a04 !important;
-}
-
-/* Light Theme Pills & Tags */
-.light-theme [class*="bg-emerald-500/"] {
-  background-color: #ecfdf5 !important;
-  border-color: #a7f3d0 !important;
-  color: #059669 !important;
-}
-
-.light-theme [class*="bg-cyan-500/"] {
-  background-color: #ecfeff !important;
-  border-color: #a5f3fc !important;
-  color: #0891b2 !important;
-}
-
-.light-theme [class*="bg-amber-500/"] {
-  background-color: #fffbeb !important;
-  border-color: #fde68a !important;
-  color: #d97706 !important;
-}
-
-.light-theme [class*="bg-rose-500/"] {
-  background-color: #fff1f2 !important;
-  border-color: #fecdd3 !important;
-  color: #e11d48 !important;
-}
-
-.light-theme [class*="bg-purple-500/"] {
-  background-color: #faf5ff !important;
-  border-color: #e9d5ff !important;
-  color: #7c3aed !important;
-}
-
-/* Form Controls & Tables */
-.light-theme input,
-.light-theme select,
-.light-theme textarea {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-  border-color: #cbd5e1 !important;
-}
-
-.light-theme input::placeholder,
-.light-theme textarea::placeholder {
-  color: #94a3b8 !important;
-}
-
-.light-theme table tr {
-  border-color: #e2e8f0 !important;
-}
-
-.light-theme th {
-  background-color: #f1f5f9 !important;
-  color: #475569 !important;
-}
-
-.light-theme td {
-  color: #1e293b !important;
-}
-
-/* Modal Backdrops & Dialog Containers */
-.light-theme .fixed.inset-0 {
-  background-color: rgba(15, 23, 42, 0.45) !important;
-  backdrop-filter: blur(8px) !important;
-}
-
-/* Recharts Grid Lines & Tooltips in Light Mode */
-.light-theme .recharts-cartesian-grid-horizontal line,
-.light-theme .recharts-cartesian-grid-vertical line {
-  stroke: #e2e8f0 !important;
-}
-
-.light-theme .recharts-default-tooltip {
-  background-color: #ffffff !important;
-  border-color: #cbd5e1 !important;
-  color: #0f172a !important;
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1) !important;
-}
-
-/* Light Theme Scrollbar */
-.light-theme ::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-
-.light-theme ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-}
-
-.light-theme ::-webkit-scrollbar-thumb:hover {
   background: #10b981;
 }

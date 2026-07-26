@@ -60,10 +60,10 @@ export default function DigitalTwinFloorPlan({ zones, onSelectZone }) {
               className={`cursor-pointer rounded-2xl p-5 border backdrop-blur-md transition-all duration-200 shadow-xl ${style}`}
             >
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-200/80 dark:bg-black/40 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-white/10">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-black/40 border border-white/10">
                   {zone.floor}
                 </span>
-                <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-slate-200/80 dark:bg-black/40 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-white/10">
+                <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-black/40 border border-white/10">
                   {zone.hvac_status}
                 </span>
               </div>

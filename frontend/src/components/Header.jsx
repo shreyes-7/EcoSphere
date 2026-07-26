@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { RefreshCw, Play, Loader2, Cpu, Sun, Moon } from 'lucide-react';
+import { RefreshCw, Play, Loader2, Cpu, Zap, Activity, ShieldAlert } from 'lucide-react';
 
 const PAGE_TITLES = {
   overview: { title: 'Autonomous Command Center', desc: 'Real-time building physics metrics & multi-agent supervisor consensus' },
@@ -13,7 +13,7 @@ const PAGE_TITLES = {
   telemetry: { title: 'System Telemetry & Stream Logs', desc: 'Agent execution latency metrics & structured JSON logs' },
 };
 
-export default function Header({ activeTab, onRefresh, onExecuteClosedLoop, isExecuting, theme = 'dark', onToggleTheme }) {
+export default function Header({ activeTab, onRefresh, onExecuteClosedLoop, isExecuting }) {
   const current = PAGE_TITLES[activeTab] || PAGE_TITLES.overview;
 
   return (
@@ -27,7 +27,7 @@ export default function Header({ activeTab, onRefresh, onExecuteClosedLoop, isEx
       </div>
 
       {/* Agents Active Pills & Quick Actions */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         {/* Agent Swarm Pills */}
         <div className="hidden lg:flex items-center gap-2 bg-[#080d1a] border border-slate-800 rounded-full px-4 py-1.5 text-xs text-slate-300 shadow-inner">
           <span className="flex items-center gap-1.5 text-emerald-400 font-bold tracking-wide">
@@ -39,21 +39,6 @@ export default function Header({ activeTab, onRefresh, onExecuteClosedLoop, isEx
           <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/25 font-mono text-[10px] font-bold">Sustain</span>
           <span className="px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/25 font-mono text-[10px] font-bold">Supervisor</span>
         </div>
-
-        {/* Light / Dark Mode Toggle Button */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onToggleTheme}
-          className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-400 hover:text-amber-400 dark:hover:text-amber-300 hover:border-amber-500/40 transition shadow-lg flex items-center justify-center"
-          title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-        >
-          {theme === 'dark' ? (
-            <Sun className="w-4 h-4 text-amber-400" />
-          ) : (
-            <Moon className="w-4 h-4 text-indigo-600" />
-          )}
-        </motion.button>
 
         {/* Refresh Button */}
         <motion.button
