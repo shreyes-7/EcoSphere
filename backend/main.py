@@ -22,13 +22,50 @@ from backend.utils.exceptions import EcoSphereError
 from backend.utils.logger import configure_logging, get_logger
 
 
+def verify_and_initialize_environment() -> list[Path]:
+    """
+    Verify and idempotently initialize all required project directories across platforms.
+    Raises RuntimeError if directory creation fails.
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    required_directories = [
+        project_root / "backend" / "database",
+        project_root / "energyplus" / "output",
+        project_root / "logs",
+        project_root / "reports",
+        project_root / "uploads",
+        project_root / "uploads" / "idf",
+        project_root / "uploads" / "weather",
+        project_root / "simulation_output",
+    ]
+
+    for directory in required_directories:
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+        except Exception as error:
+            error_msg = f"Failed to initialize required environment directory '{directory}': {error}"
+            print(f"CRITICAL: {error_msg}")
+            raise RuntimeError(error_msg) from error
+
+    return required_directories
+
+
 @asynccontextmanager
 async def lifespan(application: FastAPI) -> AsyncIterator[None]:
-    """Initialize database tables and application logging on startup."""
+    """Initialize environment directories, database tables, and application logging on startup."""
+    verify_and_initialize_environment()
+
     settings = get_settings()
     configure_logging(settings)
     logger = get_logger(__name__)
+
+    logger.info("✓ Required directories verified/created successfully")
+
     initialize_database()
+    logger.info("✓ SQLite database and SQLAlchemy tables initialized successfully")
+    logger.info("✓ Application logger initialized successfully")
+    logger.info("✓ EcoSphere project environment initialized successfully")
+
     logger.info("EcoSphere API started")
     yield
     logger.info("EcoSphere API stopped")
