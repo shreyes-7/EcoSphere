@@ -53,19 +53,13 @@ export default function Footer({ onNavigate }) {
               <Activity className="w-3.5 h-3.5 text-emerald-400" />
               <span>System Health</span>
             </h4>
-            <div className="space-y-1.5">
-              <div className="grid grid-cols-2 gap-2">
-                <StatusBadge label="API" status="Online" color="emerald" />
-                <StatusBadge label="Database" status="Healthy" color="emerald" />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <StatusBadge label="EnergyPlus" status="Connected" color="cyan" />
-                <StatusBadge label="Supervisor" status="Active" color="amber" />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <StatusBadge label="RL Engine" status="Learning" color="purple" />
-                <StatusBadge label="Swarm" status="Running" color="emerald" />
-              </div>
+            <div className="space-y-1.5 w-full">
+              <StatusBadge label="API" status="Online" color="emerald" />
+              <StatusBadge label="Database" status="Healthy" color="emerald" />
+              <StatusBadge label="EnergyPlus" status="Connected" color="cyan" />
+              <StatusBadge label="Supervisor" status="Active" color="amber" />
+              <StatusBadge label="RL Engine" status="Learning" color="purple" />
+              <StatusBadge label="Swarm" status="Running" color="emerald" />
             </div>
           </div>
 
@@ -75,7 +69,7 @@ export default function Footer({ onNavigate }) {
               <Code2 className="w-3.5 h-3.5 text-cyan-400" />
               <span>Technology Stack</span>
             </h4>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-1.5">
+            <div className="grid grid-cols-2 gap-1.5">
               {techStack.map((tech) => (
                 <TechnologyBadge key={tech} name={tech} />
               ))}
