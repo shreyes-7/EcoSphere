@@ -124,7 +124,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
 
         <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex justify-between items-center text-[10px] text-slate-400 font-mono">
           <span className="flex items-center gap-1">
-            <Zap className="w-3 h-3 text-emerald-400" /> v2.4.0
+            <Zap className="w-3 h-3 text-emerald-400" /> v1.0.0
           </span>
           <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
             READY

@@ -53,7 +53,7 @@ export default function Footer({ onNavigate }) {
               <Activity className="w-3.5 h-3.5 text-emerald-400" />
               <span>System Health</span>
             </h4>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
               <StatusBadge label="API" status="Online" color="emerald" />
               <StatusBadge label="Database" status="Healthy" color="emerald" />
               <StatusBadge label="EnergyPlus" status="Connected" color="cyan" />

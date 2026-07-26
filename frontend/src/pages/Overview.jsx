@@ -48,7 +48,7 @@ const COMPONENT_BREAKDOWN = [
   { name: 'Aux Fans & Pumps', value: 23.8, color: '#f59e0b' },
 ];
 
-export default function Overview({ latestSimulation, supervisorPlan, onNavigate, setToast }) {
+export default function Overview({ latestSimulation, supervisorPlan, onNavigate, onExecuteClosedLoop, setToast }) {
   const [chartView, setChartView] = useState('hourly'); // 'hourly' | 'components'
 
   const electricity = latestSimulation?.electricity || 131.2;
@@ -90,7 +90,7 @@ export default function Overview({ latestSimulation, supervisorPlan, onNavigate,
           {/* Quick Action Trigger Buttons */}
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
             <button
-              onClick={() => onNavigate('simulation')}
+              onClick={() => onNavigate && onNavigate('simulation')}
               className="flex-1 lg:flex-none px-4 py-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center justify-center gap-2 transition-all shadow-lg hover:border-slate-600"
             >
               <BarChart2 className="w-4 h-4 text-cyan-400" />
@@ -98,7 +98,7 @@ export default function Overview({ latestSimulation, supervisorPlan, onNavigate,
             </button>
 
             <button
-              onClick={() => onNavigate('optimization')}
+              onClick={() => (onExecuteClosedLoop ? onExecuteClosedLoop() : (onNavigate && onNavigate('optimization')))}
               className="flex-1 lg:flex-none px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 text-xs font-extrabold flex items-center justify-center gap-2 transition-all shadow-xl shadow-emerald-500/20"
             >
               <Cpu className="w-4 h-4" />
@@ -331,7 +331,7 @@ export default function Overview({ latestSimulation, supervisorPlan, onNavigate,
           </div>
 
           <button
-            onClick={() => onNavigate('optimization')}
+            onClick={() => (onExecuteClosedLoop ? onExecuteClosedLoop() : (onNavigate && onNavigate('optimization')))}
             className="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 text-xs font-black flex items-center justify-center gap-2 transition-all shadow-xl shadow-emerald-500/20"
           >
             <span>Launch Closed-Loop Control</span>

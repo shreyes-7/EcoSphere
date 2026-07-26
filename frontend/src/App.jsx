@@ -91,7 +91,15 @@ export default function App() {
   const renderActiveTab = () => {
     switch (activeTab) {
       case 'overview':
-        return <Overview latestSimulation={latestSimulation} supervisorPlan={supervisorPlan} setToast={setToast} />;
+        return (
+          <Overview
+            latestSimulation={latestSimulation}
+            supervisorPlan={supervisorPlan}
+            setToast={setToast}
+            onNavigate={setActiveTab}
+            onExecuteClosedLoop={handleExecuteClosedLoopGlobal}
+          />
+        );
       case 'digital-twin':
         return <DigitalTwinView setToast={setToast} />;
       case 'decision-tree':
@@ -116,7 +124,15 @@ export default function App() {
       case 'about':
         return <About onNavigate={setActiveTab} />;
       default:
-        return <Overview latestSimulation={latestSimulation} supervisorPlan={supervisorPlan} setToast={setToast} />;
+        return (
+          <Overview
+            latestSimulation={latestSimulation}
+            supervisorPlan={supervisorPlan}
+            setToast={setToast}
+            onNavigate={setActiveTab}
+            onExecuteClosedLoop={handleExecuteClosedLoopGlobal}
+          />
+        );
     }
   };
 
