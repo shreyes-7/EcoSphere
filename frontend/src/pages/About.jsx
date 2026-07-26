@@ -222,16 +222,7 @@ export default function About({ onNavigate }) {
           <span className="text-sm font-extrabold text-white">Developed by Shreyes Jaiswal</span>
         </div>
 
-        <div className="flex items-center gap-2 text-slate-400 text-right">
-          <span>Powered by EnergyPlus • FastAPI • React • FastMCP • Python</span>
-        </div>
       </div>
-
-      {/* ABOUT PAGE FOOTER NOTICE */}
-      <div className="text-center py-4 border-t border-slate-900 text-xs font-mono text-slate-500">
-        © 2026 EcoSphere — Autonomous Physical AI Platform
-      </div>
-
     </div>
   );
 }

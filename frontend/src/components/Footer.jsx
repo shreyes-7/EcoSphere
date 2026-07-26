@@ -1,5 +1,5 @@
 import React from 'react';
-import { Leaf, Sparkles, Activity, Cpu, Code2, Link2, ShieldCheck, Heart } from 'lucide-react';
+import { Leaf, Sparkles, Activity, Code2, Link2 } from 'lucide-react';
 import StatusBadge from './Footer/StatusBadge';
 import TechnologyBadge from './Footer/TechnologyBadge';
 import QuickLink from './Footer/QuickLink';
@@ -18,16 +18,17 @@ export default function Footer({ onNavigate }) {
   ];
 
   return (
-    <footer className="w-full bg-[#000000] border-t border-slate-800/80 mt-12 py-10 px-6 sm:px-8 z-10 relative select-none">
-      <div className="max-w-7xl mx-auto space-y-10">
+    <footer className="w-full max-w-7xl mx-auto mt-12 mb-6 z-10 select-none">
+      <div className="amoled-card rounded-3xl p-6 sm:p-8 border border-slate-800/80 space-y-8 shadow-2xl">
+        
         {/* Main Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           
-          {/* SECTION 1: EcoSphere Info */}
-          <div className="space-y-4">
+          {/* SECTION 1: EcoSphere Platform Info */}
+          <div className="space-y-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-slate-950 shadow-md shadow-emerald-500/20">
-                <Leaf className="w-4 h-4 stroke-[2.5]" />
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 flex items-center justify-center text-slate-950 shadow-md shadow-emerald-500/20">
+                <Leaf className="w-4.5 h-4.5 stroke-[2.5]" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -36,7 +37,7 @@ export default function Footer({ onNavigate }) {
                     v1.0.0
                   </span>
                 </div>
-                <span className="text-[11px] font-mono text-emerald-400 font-bold uppercase tracking-wider block">
+                <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider block">
                   Autonomous Physical AI Platform
                 </span>
               </div>
@@ -109,18 +110,19 @@ export default function Footer({ onNavigate }) {
 
         </div>
 
-        {/* COPYRIGHT ROW */}
-        <div className="pt-6 border-t border-slate-900/90 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-500">
+        {/* COPYRIGHT BOTTOM ROW */}
+        <div className="pt-5 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-slate-500">
           <div className="flex items-center gap-2">
-            <span>© 2026 EcoSphere</span>
+            <span className="text-slate-400">© 2026 EcoSphere</span>
             <span>•</span>
-            <span className="text-slate-400">Developed for Autonomous Building Intelligence</span>
+            <span>Developed for Autonomous Building Intelligence</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[11px]">
-            <span>Crafted for EnergyPlus & Multi-Agent Physical AI</span>
-            <Sparkles className="w-3 h-3 text-emerald-400" />
+          <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+            <span>EnergyPlus & Multi-Agent Physical AI Engine</span>
+            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
           </div>
         </div>
+
       </div>
     </footer>
   );
