@@ -32,6 +32,36 @@ class EnergyPlusRun:
     execution_seconds: float
 
 
+def resolve_remote_url(file_path: str | Path, expected_ext: str) -> Path:
+    """Download HTTP/HTTPS or Google Drive link automatically if provided."""
+    import re
+    import urllib.request
+
+    s = str(file_path).strip()
+    if s.startswith("http://") or s.startswith("https://"):
+        drive_match = re.search(r"/d/([a-zA-Z0-9_-]+)", s) or re.search(r"id=([a-zA-Z0-9_-]+)", s)
+        if drive_match:
+            file_id = drive_match.group(1)
+            download_url = f"https://docs.google.com/uc?export=download&id={file_id}"
+        else:
+            download_url = s
+
+        dest_dir = Path("uploads")
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        dest_file = dest_dir / f"remote_{abs(hash(s))}{expected_ext}"
+
+        if not dest_file.exists():
+            req = urllib.request.Request(
+                download_url,
+                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+            )
+            with urllib.request.urlopen(req, timeout=20) as resp, open(dest_file, "wb") as f:
+                f.write(resp.read())
+
+        return dest_file
+    return Path(s)
+
+
 class EnergyPlusService:
     """Execute EnergyPlus with validated IDF and EPW files."""
 
@@ -83,7 +113,7 @@ class EnergyPlusService:
 
     def validate_weather(self, weather_file: str | Path) -> Path:
         """Validate a non-empty EPW weather file."""
-        path = Path(weather_file)
+        path = resolve_remote_url(weather_file, ".epw")
         if not path.is_file() or path.suffix.lower() != ".epw" or path.stat().st_size == 0:
             raise WeatherFileMissing(f"Weather file missing or invalid: {path}")
         if not path.read_text(encoding="utf-8", errors="ignore")[:100].upper().startswith("LOCATION"):
@@ -92,7 +122,7 @@ class EnergyPlusService:
 
     def validate_building(self, idf_file: str | Path) -> Path:
         """Validate a non-empty, text-based IDF building model."""
-        path = Path(idf_file)
+        path = resolve_remote_url(idf_file, ".idf")
         if not path.is_file() or path.suffix.lower() != ".idf" or path.stat().st_size == 0:
             raise BuildingFileMissing(f"Building IDF file missing or invalid: {path}")
         return path
