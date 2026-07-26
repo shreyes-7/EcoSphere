@@ -17,12 +17,27 @@ export default function FacilityManagerChat() {
   ]);
 
   const chatEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
       chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (chatContainerRef.current && !chatContainerRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   const handleSend = async (textToSend) => {
     const query = textToSend || inputMsg;
@@ -68,7 +83,7 @@ export default function FacilityManagerChat() {
   };
 
   return (
-    <>
+    <div ref={chatContainerRef}>
       {/* Floating Chatbot Launcher Button */}
       <motion.button
         whileHover={{ scale: 1.08 }}
@@ -189,6 +204,6 @@ export default function FacilityManagerChat() {
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }

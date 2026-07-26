@@ -16,13 +16,14 @@ export default function ZoneDetailDrawer({ zone, onClose }) {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm">
+      <div onClick={onClose} className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm cursor-pointer">
         <motion.div
+          onClick={(e) => e.stopPropagation()}
           initial={{ x: '100%' }}
           animate={{ x: 0 }}
           exit={{ x: '100%' }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="w-full max-w-md bg-[#070b14] border-l border-slate-800 p-6 overflow-y-auto flex flex-col justify-between shadow-2xl"
+          className="w-full max-w-md bg-[#070b14] border-l border-slate-800 p-6 overflow-y-auto flex flex-col justify-between shadow-2xl cursor-default"
         >
           <div>
             {/* Drawer Header */}
