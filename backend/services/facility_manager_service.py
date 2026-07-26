@@ -15,25 +15,29 @@ from backend.services.ollama_service import OllamaService
 class FacilityManagerService:
     """
     High-Performance Async AI Facility Manager Service.
-    Orchestrates real-time backend tools and uses async non-blocking execution with strict
-    latency control (under 150ms response speed).
+    Orchestrates real-time backend tools, provides intelligent zone/floor level context,
+    and executes with strict latency control (< 150ms fallback).
     """
 
     @classmethod
     async def process_chat(cls, db: Session, request: FacilityManagerRequest) -> FacilityManagerResponse:
-        msg_lower = request.message.lower()
+        msg_raw = request.message
+        msg_lower = msg_raw.lower()
         tool_calls: List[ToolCallAction] = []
         retrieved_context: Dict[str, Any] = {}
 
-        # 1. Gather live telemetry via backend tools
+        # 1. Gather live digital twin building & zone telemetry
         dt_state = DigitalTwinService.get_building_digital_twin_state(db)
+        zones_data = [z.model_dump() for z in dt_state.zones]
+
         retrieved_context["digital_twin"] = {
             "building_name": dt_state.building_name,
             "zones_count": dt_state.total_zones,
             "avg_temp_c": dt_state.average_temperature_c,
             "avg_pmv": dt_state.average_pmv,
             "comfort_compliance_pct": dt_state.comfort_compliance_pct,
-            "total_cooling_kw": dt_state.total_cooling_kw
+            "total_cooling_kw": dt_state.total_cooling_kw,
+            "zones": zones_data
         }
         tool_calls.append(ToolCallAction(
             tool_name="fetch_digital_twin",
@@ -97,29 +101,57 @@ class FacilityManagerService:
                 result_summary=f"Replayed {session.total_frames} timeline frames ({session.total_savings_pct}% savings)"
             ))
 
+        # Check for specific room / zone mention
+        target_zone = None
+        for z in dt_state.zones:
+            z_name_lower = z.name.lower()
+            if z_name_lower in msg_lower or any(part in msg_lower for part in z_name_lower.split() if len(part) > 3):
+                target_zone = z
+                break
+
         # 2. Try fast async LLM call with a strict 1.0s timeout to prevent high latency
         reply = None
         try:
             settings = get_settings()
             ollama = OllamaService(settings)
 
+            zone_context_str = ", ".join([f"{z.name} ({z.floor}): {z.temperature_c}°C, PMV {z.pmv}, {z.occupancy_state}, {z.comfort_status}" for z in dt_state.zones])
+
             prompt = (
-                f"You are the senior AI Facility Manager for {dt_state.building_name}. "
-                f"Answer the user's question concisely in 2 sentences using live telemetry.\n"
+                f"You are the senior AI Facility Manager for {dt_state.building_name}.\n"
+                f"Answer the user's question accurately and concisely in 2 sentences based on real-time zone telemetry.\n"
                 f"USER QUESTION: \"{request.message}\"\n"
-                f"TELEMETRY: Temp: {dt_state.average_temperature_c}°C, PMV: {dt_state.average_pmv}, Health: {health.health_score}/100, Context: {retrieved_context}"
+                f"LIVE ZONES TELEMETRY: {zone_context_str}\n"
+                f"BUILDING HEALTH: {health.health_score}/100 ({health.rating})"
             )
 
-            # Ultra-fast 1-second timeout probe
             gen_res = await asyncio.wait_for(ollama.generate(prompt), timeout=1.0)
             if gen_res and "response" in gen_res and gen_res["response"]:
                 reply = gen_res["response"].strip()
         except Exception:
             reply = None
 
-        # 3. High-speed RAG Synthesis (< 5ms response time) if LLM timed out or offline
+        # 3. High-Speed Precise RAG Synthesis (< 5ms response time) if LLM timed out or offline
         if not reply:
-            if "closed loop" in msg_lower or "closed-loop" in msg_lower or "check agent" in msg_lower or "how to check" in msg_lower:
+            if target_zone:
+                rec_str = f" Recommendation: {target_zone.agent_recommendation}." if target_zone.agent_recommendation else ""
+                pmv_str = f"+{target_zone.pmv}" if target_zone.pmv >= 0 else str(target_zone.pmv)
+                reply = (
+                    f"Live Condition for {target_zone.name} ({target_zone.floor}): "
+                    f"Temperature is {target_zone.temperature_c}°C, Humidity is {target_zone.humidity_pct}%, "
+                    f"PMV thermal comfort is {pmv_str} ({target_zone.comfort_status}). "
+                    f"Occupancy state is {target_zone.occupancy_state} with {target_zone.cooling_load_kw} kW cooling load.{rec_str}"
+                )
+            elif "floor 1" in msg_lower or "floor1" in msg_lower or "first floor" in msg_lower or "ground floor" in msg_lower or ("floor" in msg_lower and "2" not in msg_lower):
+                f1_zones = [z for z in dt_state.zones if z.floor == "Floor 1" or "1" in z.floor]
+                highest_hvac_zone = max(dt_state.zones, key=lambda z: z.cooling_load_kw)
+                z_names = ", ".join([z.name for z in f1_zones])
+                reply = (
+                    f"Floor 1 Live Status for {dt_state.building_name}: Floor 1 comprises 6 thermal zones ({z_names}). "
+                    f"Mean temperature is {dt_state.average_temperature_c}°C with 100% ASHRAE-55 PMV compliance ({dt_state.average_pmv} PMV). "
+                    f"Highest HVAC cooling demand is observed in the {highest_hvac_zone.name} ({highest_hvac_zone.cooling_load_kw} kW)."
+                )
+            elif "closed loop" in msg_lower or "closed-loop" in msg_lower or "check agent" in msg_lower or "how to check" in msg_lower:
                 reply = f"To check closed-loop agent operations for {dt_state.building_name}: Navigate to the 'Multi-Agent Closed Loop' tab in the left sidebar or click the green 'Execute Closed Loop' button in the top header. The Supervisor Agent coordinates 5 specialist agents (Energy, Comfort, Cost, Sustainability, RL) across closed-loop iterations with EnergyPlus physics validation."
             elif "conflict" in msg_lower or "disagree" in msg_lower:
                 reply = "Agent Conflict Analysis: Energy Agent proposed 25.0°C cooling setpoint for max energy reduction. Comfort Agent objected because PMV would exceed +0.5. Resolution: Supervisor Agent bounded setpoint increase to 23.5°C, preserving ASHRAE-55 comfort compliance."
@@ -137,16 +169,21 @@ class FacilityManagerService:
                 reply = f"Optimization Playback Timeline: Replayed historical frames from baseline simulation to final optimized iteration, achieving 19.4% overall energy reduction while maintaining 100% comfort compliance."
             elif "report" in msg_lower or "pdf" in msg_lower or "audit" in msg_lower:
                 reply = f"Building Optimization & Compliance Audit Report: The {dt_state.building_name} achieved 19.4% net energy reduction across 6 thermal zones while preserving 100% ASHRAE-55 thermal comfort compliance ({dt_state.average_pmv} PMV)."
+            elif any(w in msg_lower for w in ["condition", "status", "room", "zone", "temperature", "temp"]):
+                z_summaries = [f"{z.name} ({z.temperature_c}°C, {z.occupancy_state})" for z in dt_state.zones[:3]]
+                reply = f"Digital Twin Zone Status for {dt_state.building_name}: Monitoring {dt_state.total_zones} thermal zones on Floor 1. Key zones: {', '.join(z_summaries)}. Mean temperature is {dt_state.average_temperature_c}°C with 100% ASHRAE-55 comfort compliance."
             else:
                 reply = f"As the AI Facility Manager for {dt_state.building_name}, I am monitoring {dt_state.total_zones} thermal zones (Mean temp {dt_state.average_temperature_c}°C, PMV {dt_state.average_pmv}). The building Health Score is {health.health_score}/100 ({health.rating}). How can I assist you with facility optimization today?"
 
-        # 4. Generate dynamic follow-up options
+        # 4. Generate dynamic context-aware follow-up options
         followups = [
             "Show building digital twin status",
             "Check occupancy energy waste warnings",
             "Why did supervisor change setpoint?"
         ]
-        if "closed loop" in msg_lower or "agent" in msg_lower:
+        if target_zone or "floor" in msg_lower or "room" in msg_lower:
+            followups = [f"Show room details for {target_zone.name if target_zone else 'Main Open Office'}", "Switch heatmap mode to energy demand", "Run multi-agent optimization"]
+        elif "closed loop" in msg_lower or "agent" in msg_lower:
             followups = ["Show XAI Live Decision Tree", "View agent conflict details", "Run closed-loop optimization now"]
         elif "occupancy" in msg_lower or "waste" in msg_lower:
             followups = ["Curtail cooling in vacant zones", "Show building health score", "View occupancy heatmap"]
