@@ -42,7 +42,7 @@ export default function About({ onNavigate }) {
   ];
 
   const techStack = [
-    { category: 'Frontend', items: ['React', 'TypeScript', 'TailwindCSS', 'Recharts'] },
+    { category: 'Frontend', items: ['React', 'JavaScript', 'TailwindCSS', 'Recharts'] },
     { category: 'Backend', items: ['FastAPI', 'Python', 'SQLAlchemy', 'SQLite', 'FastMCP'] },
     { category: 'Simulation', items: ['EnergyPlus C++ Engine', 'IDF AST Modifier', 'EPW Weather'] },
     { category: 'Optimization', items: ['Multi-Agent AI', 'Supervisor Agent', 'Reinforcement Learning', 'Explainable AI'] },

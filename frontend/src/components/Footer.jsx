@@ -6,20 +6,20 @@ import QuickLink from './Footer/QuickLink';
 
 export default function Footer({ onNavigate }) {
   const techStack = [
-    { name: 'EnergyPlus', category: 'Physics' },
-    { name: 'FastAPI', category: 'Backend' },
-    { name: 'React', category: 'Frontend' },
-    { name: 'TypeScript', category: 'Logic' },
-    { name: 'Python', category: 'Core' },
-    { name: 'FastMCP', category: 'Protocol' },
-    { name: 'SQLAlchemy', category: 'ORM' },
-    { name: 'SQLite', category: 'DB' },
-    { name: 'TailwindCSS', category: 'Styling' },
+    'EnergyPlus',
+    'FastAPI',
+    'React',
+    'JavaScript',
+    'Python',
+    'FastMCP',
+    'SQLAlchemy',
+    'SQLite',
+    'TailwindCSS'
   ];
 
   return (
     <footer className="w-full max-w-7xl mx-auto mt-12 mb-6 z-10 select-none">
-      <div className="amoled-card rounded-3xl p-6 sm:p-8 border border-slate-800/80 space-y-8 shadow-2xl">
+      <div className="amoled-card rounded-3xl p-6 sm:p-8 border border-slate-800/80 space-y-6 shadow-2xl">
         
         {/* Main Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -53,13 +53,19 @@ export default function Footer({ onNavigate }) {
               <Activity className="w-3.5 h-3.5 text-emerald-400" />
               <span>System Health</span>
             </h4>
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
-              <StatusBadge label="API" status="Online" color="emerald" />
-              <StatusBadge label="Database" status="Healthy" color="emerald" />
-              <StatusBadge label="EnergyPlus" status="Connected" color="cyan" />
-              <StatusBadge label="Supervisor" status="Active" color="amber" />
-              <StatusBadge label="RL Engine" status="Learning" color="purple" />
-              <StatusBadge label="Swarm" status="Running" color="emerald" />
+            <div className="space-y-1.5">
+              <div className="grid grid-cols-2 gap-2">
+                <StatusBadge label="API" status="Online" color="emerald" />
+                <StatusBadge label="Database" status="Healthy" color="emerald" />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <StatusBadge label="EnergyPlus" status="Connected" color="cyan" />
+                <StatusBadge label="Supervisor" status="Active" color="amber" />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <StatusBadge label="RL Engine" status="Learning" color="purple" />
+                <StatusBadge label="Swarm" status="Running" color="emerald" />
+              </div>
             </div>
           </div>
 
@@ -69,9 +75,9 @@ export default function Footer({ onNavigate }) {
               <Code2 className="w-3.5 h-3.5 text-cyan-400" />
               <span>Technology Stack</span>
             </h4>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-1.5">
               {techStack.map((tech) => (
-                <TechnologyBadge key={tech.name} name={tech.name} category={tech.category} />
+                <TechnologyBadge key={tech} name={tech} />
               ))}
             </div>
           </div>
@@ -111,7 +117,7 @@ export default function Footer({ onNavigate }) {
         </div>
 
         {/* COPYRIGHT BOTTOM ROW */}
-        <div className="pt-5 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-slate-500">
+        <div className="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-slate-500">
           <div className="flex items-center gap-2">
             <span className="text-slate-400">© 2026 EcoSphere</span>
             <span>•</span>
