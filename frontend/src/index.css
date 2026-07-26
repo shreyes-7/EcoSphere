@@ -151,3 +151,153 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #10b981;
 }
+
+/* ==========================================================================
+   LIGHT THEME OVERRIDES (Clean, High-Contrast Industrial AI Aesthetic)
+   ========================================================================== */
+.light-theme {
+  color-scheme: light;
+}
+
+.light-theme body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Light Theme Grid Pattern */
+.light-theme .amoled-grid-bg {
+  background-color: #f8fafc !important;
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 85% 25%, rgba(6, 182, 212, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 50% 85%, rgba(139, 92, 246, 0.04) 0%, transparent 50%),
+    linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 100% 100%, 100% 100%, 48px 48px, 48px 48px !important;
+}
+
+/* Cards & Glass Panels */
+.light-theme .amoled-card,
+.light-theme .glass-card,
+.light-theme .glass-panel {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03) !important;
+}
+
+.light-theme .amoled-card-hover:hover {
+  transform: translateY(-3px);
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 12px 28px -6px rgba(16, 185, 129, 0.15) !important;
+}
+
+/* Navigation: Header, Sidebar, Footer */
+.light-theme header {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+.light-theme aside {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme footer > div {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Light Theme Text Contrast Adjustments */
+.light-theme h1,
+.light-theme h2,
+.light-theme h3,
+.light-theme h4,
+.light-theme h5,
+.light-theme h6,
+.light-theme .text-white {
+  color: #0f172a !important;
+}
+
+.light-theme .text-slate-100,
+.light-theme .text-slate-200,
+.light-theme .text-slate-300 {
+  color: #1e293b !important;
+}
+
+.light-theme .text-slate-400 {
+  color: #475569 !important;
+}
+
+.light-theme .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Container Backgrounds */
+.light-theme .bg-\[\#000000\],
+.light-theme .bg-\[\#03060c\],
+.light-theme .bg-\[\#050b14\],
+.light-theme .bg-\[\#080d1a\],
+.light-theme .bg-\[\#0a0e17\],
+.light-theme .bg-slate-950,
+.light-theme .bg-slate-950\/80,
+.light-theme .bg-slate-950\/90,
+.light-theme .bg-slate-900,
+.light-theme .bg-slate-900\/90,
+.light-theme .bg-slate-900\/50,
+.light-theme .bg-slate-900\/80 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme .bg-slate-800,
+.light-theme .bg-slate-800\/50,
+.light-theme .bg-slate-800\/80 {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Borders */
+.light-theme .border-slate-800,
+.light-theme .border-slate-800\/80,
+.light-theme .border-slate-800\/90,
+.light-theme .border-slate-700,
+.light-theme .border-slate-700\/80 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Inputs, Selects, Tables */
+.light-theme input,
+.light-theme select,
+.light-theme textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme input::placeholder,
+.light-theme textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.light-theme table tr {
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme th {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+/* Light Theme Scrollbar */
+.light-theme ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.light-theme ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+.light-theme ::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}

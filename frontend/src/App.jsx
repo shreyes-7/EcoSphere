@@ -22,6 +22,23 @@ export default function App() {
   const [isExecutingClosedLoop, setIsExecutingClosedLoop] = useState(false);
   const [toast, setToastState] = useState(null);
 
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('ecosphere_theme') || 'dark';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('ecosphere_theme', theme);
+    if (theme === 'light') {
+      document.documentElement.classList.add('light-theme');
+    } else {
+      document.documentElement.classList.remove('light-theme');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   const setToast = (toastData) => {
     if (!toastData) {
       setToastState(null);
@@ -154,6 +171,8 @@ export default function App() {
           onRefresh={handleRefresh}
           onExecuteClosedLoop={handleExecuteClosedLoopGlobal}
           isExecuting={isExecutingClosedLoop}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
 
         {/* Dynamic Page Container with Framer Motion Page Transition */}
