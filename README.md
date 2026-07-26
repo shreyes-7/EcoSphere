@@ -116,9 +116,6 @@ flowchart TD
 
 ## ⚙️ Environment Variables Reference
 
-> [!CAUTION]
-> **SECURITY NOTICE**: NEVER commit your `.env` file to version control. The `.gitignore` file is configured to ignore `.env`. Always copy `.env.example` to create your local `.env`.
-
 Create a `.env` file in the root project directory by copying `.env.example`:
 
 ```powershell
@@ -142,7 +139,7 @@ cp .env.example .env
 | `UPLOAD_DIRECTORY` | `"uploads"` | Storage folder for user-uploaded & remote-downloaded `.idf`/`.epw` files |
 | `SIMULATION_TIMEOUT_SECONDS` | `600` | Timeout threshold in seconds for EnergyPlus simulation process |
 | `OLLAMA_BASE_URL` | `"http://localhost:11434"` | Base URL for local Ollama LLM endpoint |
-| `OLLAMA_MODEL` | `"qwen2.5-coder:7b"` | Ollama model identifier for Facility Manager natural language generation |
+| `OLLAMA_MODEL` | `"qwen2.5-coder:3b"` | Ollama model identifier for Facility Manager natural language generation |
 | `OLLAMA_TIMEOUT_SECONDS` | `60` | Timeout in seconds for Ollama LLM queries |
 | `TARGET_TEMPERATURE_MIN` | `22.0` | Minimum comfortable indoor temperature limit ($^\circ\text{C}$) |
 | `TARGET_TEMPERATURE_MAX` | `25.0` | Maximum comfortable indoor temperature limit ($^\circ\text{C}$) |
@@ -164,7 +161,7 @@ cp .env.example .env
 - **Python**: Version `3.10` or higher
 - **Node.js**: Version `18.0` or higher & `npm`
 - **EnergyPlus Engine (Optional)**: U.S. DOE EnergyPlus v23.2+ (If not installed, EcoSphere automatically uses its internal built-in Physics Balance Engine).
-- **Ollama (Optional)**: For local offline LLM support (`qwen2.5-coder:7b`). If Ollama is not running, EcoSphere gracefully falls back to structured rule-based response synthesis.
+- **Ollama (Optional)**: For local offline LLM support (`qwen2.5-coder:3b`). If Ollama is not running, EcoSphere gracefully falls back to structured rule-based response synthesis.
 
 ---
 

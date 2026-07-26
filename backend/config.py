@@ -25,7 +25,7 @@ class Settings:
         self.host = os.getenv("HOST", "127.0.0.1")
         self.port = int(os.getenv("PORT", "8000"))
         self.ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
-        self.ollama_model = os.getenv("OLLAMA_MODEL", "qwen2.5-coder:7b")
+        self.ollama_model = os.getenv("OLLAMA_MODEL", "qwen2.5-coder:3b")
         self.ollama_timeout_seconds = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "60"))
         self.energyplus_path = os.getenv("ENERGYPLUS_PATH", "")
         self.weather_file = os.getenv("WEATHER_FILE", "")
