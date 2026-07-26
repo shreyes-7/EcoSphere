@@ -68,71 +68,6 @@
   box-shadow: 0 15px 35px -10px rgba(16, 185, 129, 0.15);
 }
 
-/* Cyber Glow Borders */
-.border-glow-emerald {
-  border-color: rgba(16, 185, 129, 0.4);
-  box-shadow: 0 0 20px -3px rgba(16, 185, 129, 0.25);
-}
-
-.border-glow-cyan {
-  border-color: rgba(6, 182, 212, 0.4);
-  box-shadow: 0 0 20px -3px rgba(6, 182, 212, 0.25);
-}
-
-.border-glow-violet {
-  border-color: rgba(139, 92, 246, 0.4);
-  box-shadow: 0 0 20px -3px rgba(139, 92, 246, 0.25);
-}
-
-.border-glow-rose {
-  border-color: rgba(244, 63, 94, 0.4);
-  box-shadow: 0 0 20px -3px rgba(244, 63, 94, 0.25);
-}
-
-/* Neon Badge Pills */
-.neon-pill-emerald {
-  background: rgba(16, 185, 129, 0.1);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.25);
-}
-
-.neon-pill-cyan {
-  background: rgba(6, 182, 212, 0.1);
-  color: #38bdf8;
-  border: 1px solid rgba(6, 182, 212, 0.25);
-}
-
-.neon-pill-violet {
-  background: rgba(139, 92, 246, 0.1);
-  color: #c084fc;
-  border: 1px solid rgba(139, 92, 246, 0.25);
-}
-
-.neon-pill-rose {
-  background: rgba(244, 63, 94, 0.1);
-  color: #fb7185;
-  border: 1px solid rgba(244, 63, 94, 0.25);
-}
-
-/* Animations */
-@keyframes floatSlow {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
-}
-
-.animate-float {
-  animation: floatSlow 6s ease-in-out infinite;
-}
-
-@keyframes pulseGlow {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
-}
-
-.animate-pulse-glow {
-  animation: pulseGlow 3s ease-in-out infinite;
-}
-
 /* Custom Sleek Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -153,7 +88,7 @@
 }
 
 /* ==========================================================================
-   LIGHT THEME DESIGN SYSTEM (Clean, Modern Vercel/Stripe Light Palette)
+   LIGHT THEME DESIGN SYSTEM (Clean, Premium Apple/Stripe Light Palette)
    ========================================================================== */
 .light-theme {
   color-scheme: light;
@@ -164,7 +99,7 @@
   color: #0f172a !important;
 }
 
-/* Light Theme Grid Background Pattern */
+/* Light Theme Background Pattern */
 .light-theme .amoled-grid-bg {
   background-color: #f8fafc !important;
   background-image: 
@@ -176,7 +111,7 @@
   background-size: 100% 100%, 100% 100%, 100% 100%, 48px 48px, 48px 48px !important;
 }
 
-/* Cards, Glass Panels, Modals */
+/* Cards, Glass Panels & Modals */
 .light-theme .amoled-card,
 .light-theme .glass-card,
 .light-theme .glass-panel {
@@ -188,11 +123,11 @@
 
 .light-theme .amoled-card-hover:hover {
   transform: translateY(-3px);
-  border-color: rgba(16, 185, 129, 0.4) !important;
+  border-color: rgba(16, 185, 129, 0.5) !important;
   box-shadow: 0 12px 28px -6px rgba(16, 185, 129, 0.15) !important;
 }
 
-/* Navigation: Header, Sidebar, Footer */
+/* Header, Sidebar, Footer Containers */
 .light-theme header {
   background: rgba(255, 255, 255, 0.95) !important;
   border-color: #e2e8f0 !important;
@@ -235,34 +170,34 @@
   color: #64748b !important;
 }
 
-/* All Inner Sub-containers, Metric Boxes & Cards in Light Mode */
-.light-theme .bg-\[\#000000\],
-.light-theme .bg-\[\#03060c\],
-.light-theme .bg-\[\#050b14\],
-.light-theme .bg-\[\#080d1a\],
-.light-theme .bg-\[\#0a0e17\],
-.light-theme .bg-slate-950,
-.light-theme .bg-slate-950\/40,
-.light-theme .bg-slate-950\/60,
-.light-theme .bg-slate-950\/80,
-.light-theme .bg-slate-950\/90,
-.light-theme .bg-slate-900\/40,
-.light-theme .bg-slate-900\/50,
-.light-theme .bg-slate-900\/80,
-.light-theme .bg-slate-900\/90,
-.light-theme .bg-slate-800,
-.light-theme .bg-slate-800\/40,
-.light-theme .bg-slate-800\/50,
-.light-theme .bg-slate-800\/80,
-.light-theme .bg-slate-800\/90,
-.light-theme .bg-black\/40,
-.light-theme .bg-black\/60 {
+/* Target ALL Tailwind Slate/Black Opacity Sub-containers in Light Mode */
+.light-theme [class*="bg-slate-950"],
+.light-theme [class*="bg-slate-900"],
+.light-theme [class*="bg-slate-800"],
+.light-theme [class*="bg-slate-700"],
+.light-theme [class*="bg-black"] {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Inner metric sub-boxes on cards (Peak Demand, Optimized Peak, Iterations Log) */
+.light-theme .amoled-card [class*="bg-slate-"],
+.light-theme .glass-card [class*="bg-slate-"],
+.light-theme .glass-panel [class*="bg-slate-"] {
   background-color: #f8fafc !important;
   border-color: #e2e8f0 !important;
   color: #0f172a !important;
 }
 
-/* Special High Contrast Overrides for Dark Thermal Zone Cards in Light Mode */
+.light-theme .amoled-card [class*="bg-slate-"] span,
+.light-theme .amoled-card [class*="bg-slate-"] p,
+.light-theme .glass-card [class*="bg-slate-"] span,
+.light-theme .glass-card [class*="bg-slate-"] p {
+  color: #0f172a !important;
+}
+
+/* Special Overrides for Thermal Zone Cards in Digital Twin */
 .light-theme .bg-emerald-950\/30 {
   background-color: #f0fdf4 !important;
   border-color: #bbf7d0 !important;
@@ -289,7 +224,55 @@
   color: #155e75 !important;
 }
 
-/* Light Mode Vivid Colored Badges & Text Accents */
+/* Sidebar Menu Button Styling in Light Mode */
+.light-theme aside button {
+  color: #475569 !important;
+}
+
+.light-theme aside button:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.light-theme aside [class*="bg-emerald-500"] {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #059669 !important;
+}
+
+/* Primary Action Buttons (Execute Closed Loop / Launch Closed Loop) in Light Mode */
+.light-theme .bg-gradient-to-r {
+  background: linear-gradient(135deg, #059669 0%, #0d9488 50%, #0891b2 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px 0 rgba(13, 148, 136, 0.35) !important;
+}
+
+.light-theme .bg-gradient-to-r *,
+.light-theme button.bg-gradient-to-r span,
+.light-theme button.bg-gradient-to-r svg {
+  color: #ffffff !important;
+  fill: currentColor !important;
+}
+
+.light-theme .text-slate-950 {
+  color: #ffffff !important;
+}
+
+/* Secondary Action Buttons (Refresh, Theme Toggle, Run Physics Sim) in Light Mode */
+.light-theme button[class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.06) !important;
+}
+
+.light-theme button[class*="bg-slate-900"]:hover {
+  background-color: #f8fafc !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+/* Accent Color Text & Badges in Light Mode */
 .light-theme .text-emerald-400,
 .light-theme .text-emerald-300 {
   color: #059669 !important;
@@ -321,52 +304,37 @@
 }
 
 /* Light Theme Pills & Tags */
-.light-theme .bg-emerald-500\/10 {
+.light-theme [class*="bg-emerald-500/"] {
   background-color: #ecfdf5 !important;
   border-color: #a7f3d0 !important;
+  color: #059669 !important;
 }
 
-.light-theme .bg-cyan-500\/10 {
+.light-theme [class*="bg-cyan-500/"] {
   background-color: #ecfeff !important;
   border-color: #a5f3fc !important;
+  color: #0891b2 !important;
 }
 
-.light-theme .bg-amber-500\/10 {
+.light-theme [class*="bg-amber-500/"] {
   background-color: #fffbeb !important;
   border-color: #fde68a !important;
+  color: #d97706 !important;
 }
 
-.light-theme .bg-rose-500\/10 {
+.light-theme [class*="bg-rose-500/"] {
   background-color: #fff1f2 !important;
   border-color: #fecdd3 !important;
+  color: #e11d48 !important;
 }
 
-.light-theme .bg-purple-500\/10 {
+.light-theme [class*="bg-purple-500/"] {
   background-color: #faf5ff !important;
   border-color: #e9d5ff !important;
+  color: #7c3aed !important;
 }
 
-.light-theme .bg-purple-500\/20 {
-  background-color: #f3e8ff !important;
-  border-color: #d8b4fe !important;
-}
-
-/* Light Mode Buttons */
-.light-theme .bg-slate-900\/90,
-.light-theme .bg-slate-900 {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-  border-color: #cbd5e1 !important;
-  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05) !important;
-}
-
-.light-theme .bg-slate-900\/90:hover,
-.light-theme .bg-slate-900:hover {
-  background-color: #f8fafc !important;
-  border-color: #94a3b8 !important;
-}
-
-/* Inputs, Selects, Tables & Form Controls */
+/* Form Controls & Tables */
 .light-theme input,
 .light-theme select,
 .light-theme textarea {
@@ -394,9 +362,7 @@
 }
 
 /* Modal Backdrops & Dialog Containers */
-.light-theme .fixed.inset-0.bg-slate-950\/80,
-.light-theme .fixed.inset-0.bg-black\/80,
-.light-theme .fixed.inset-0.bg-black\/70 {
+.light-theme .fixed.inset-0 {
   background-color: rgba(15, 23, 42, 0.45) !important;
   backdrop-filter: blur(8px) !important;
 }
@@ -412,4 +378,17 @@
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
   box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1) !important;
+}
+
+/* Light Theme Scrollbar */
+.light-theme ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.light-theme ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+.light-theme ::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
 }
