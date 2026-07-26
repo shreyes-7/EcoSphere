@@ -167,3 +167,35 @@ class AgentExplanation(Base):
 
     agent_decision: Mapped[AgentDecision] = relationship(back_populates="explanation")
 
+
+class RLEpisode(Base):
+    """Reinforcement learning training episode record."""
+
+    __tablename__ = "rl_episodes"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    episode_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    state_repr: Mapped[str] = mapped_column(Text, nullable=False)
+    action: Mapped[str] = mapped_column(String(255), nullable=False)
+    reward: Mapped[float] = mapped_column(Float, nullable=False)
+    energy_saved_kwh: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    pmv_delta: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    supervisor_accepted: Mapped[bool] = mapped_column(Integer, nullable=False, default=1) # 1=True, 0=False
+    confidence: Mapped[float] = mapped_column(Float, nullable=False, default=0.90)
+    timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=current_timestamp)
+
+
+class RLCheckpoint(Base):
+    """Reinforcement learning policy checkpoint persistence."""
+
+    __tablename__ = "rl_checkpoints"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    version: Mapped[str] = mapped_column(String(50), nullable=False)
+    total_episodes: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    average_reward: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    exploration_rate: Mapped[float] = mapped_column(Float, nullable=False, default=0.15)
+    policy_weights_json: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=current_timestamp)
+
+

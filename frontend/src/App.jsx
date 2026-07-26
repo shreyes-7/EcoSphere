@@ -3,7 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import Toast from './components/Toast';
+import FacilityManagerChat from './components/FacilityManagerChat';
 import Overview from './pages/Overview';
+import DigitalTwinView from './pages/DigitalTwinView';
+import DecisionTree from './pages/DecisionTree';
 import SimulationRunner from './pages/SimulationRunner';
 import Optimization from './pages/Optimization';
 import Comparison from './pages/Comparison';
@@ -24,11 +27,9 @@ export default function App() {
     }
     const id = Date.now();
     setToastState({ ...toastData, id });
-    if (toastData.type !== 'loading') {
-      setTimeout(() => {
-        setToastState((curr) => (curr?.id === id ? null : curr));
-      }, 4500);
-    }
+    setTimeout(() => {
+      setToastState((curr) => (curr?.id === id ? null : curr));
+    }, 2000);
   };
 
   const fetchDashboardData = async () => {
@@ -55,66 +56,52 @@ export default function App() {
 
   const handleExecuteClosedLoopGlobal = async () => {
     setIsExecutingClosedLoop(true);
-    setActiveTab('optimization');
-    setToast({ type: 'loading', title: 'Executing Autonomous Closed Loop', message: 'Gathering multi-agent evaluations...' });
-
+    setToast({ message: 'Launching multi-agent closed-loop optimization...', type: 'info' });
     try {
       const res = await fetch('/optimize/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          max_iterations: 4,
-          target_savings_percent: 15.0,
+          simulation_id: 1,
+          max_iterations: 2,
+          target_savings_percent: 10.0,
         }),
       });
       if (res.ok) {
         const data = await res.json();
-        await fetchDashboardData();
-        setToast({ type: 'success', title: 'Closed Loop Success!', message: `Achieved ${data.actual_savings_percent}% reduction!` });
+        setSupervisorPlan(data);
+        setToast({ message: 'Closed-loop optimization completed cleanly!', type: 'success' });
       } else {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.detail || 'Closed loop execution failed');
+        setToast({ message: 'Optimization execution failed', type: 'error' });
       }
     } catch (err) {
-      console.error('Error executing closed loop:', err);
-      setToast({ type: 'error', title: 'Execution Error', message: err.message });
+      console.error(err);
+      setToast({ message: 'Failed to execute closed-loop run', type: 'error' });
     } finally {
       setIsExecutingClosedLoop(false);
     }
   };
 
   const handleRefresh = async () => {
-    setToast({ type: 'loading', title: 'Refreshing System State', message: 'Fetching latest metrics & telemetry...' });
-    await fetchDashboardData();
-    setToast({ type: 'success', title: 'Dashboard Updated', message: 'Telemetry & metrics synchronized' });
+    setToast({ message: 'Refreshed system telemetry & building state', type: 'info' });
   };
 
   const renderActiveTab = () => {
     switch (activeTab) {
       case 'overview':
-        return (
-          <Overview
-            latestSimulation={latestSimulation}
-            supervisorPlan={supervisorPlan}
-            onNavigate={(tab) => setActiveTab(tab)}
-            setToast={setToast}
-          />
-        );
+        return <Overview latestSimulation={latestSimulation} supervisorPlan={supervisorPlan} setToast={setToast} />;
+      case 'digital-twin':
+        return <DigitalTwinView setToast={setToast} />;
+      case 'decision-tree':
+        return <DecisionTree setToast={setToast} />;
       case 'simulation':
-        return (
-          <SimulationRunner
-            onSimulationCreated={(simData) => {
-              setLatestSimulation(simData);
-              fetchDashboardData();
-            }}
-            setToast={setToast}
-          />
-        );
+        return <SimulationRunner setLatestSimulation={setLatestSimulation} setToast={setToast} />;
       case 'optimization':
         return (
           <Optimization
             latestSimulation={latestSimulation}
-            onClosedLoopComplete={() => fetchDashboardData()}
+            supervisorPlan={supervisorPlan}
+            setSupervisorPlan={setSupervisorPlan}
             setToast={setToast}
           />
         );
@@ -130,9 +117,12 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen w-screen bg-[#000000] amoled-grid-bg text-slate-100 overflow-hidden font-sans">
+    <div className="flex h-screen w-screen bg-[#000000] amoled-grid-bg text-slate-100 overflow-hidden font-sans relative">
       {/* Toast Notification Container */}
       <Toast toast={toast} onClose={() => setToast(null)} />
+
+      {/* Floating AI Facility Manager Chatbot Widget */}
+      <FacilityManagerChat />
 
       {/* Sidebar Navigation */}
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />

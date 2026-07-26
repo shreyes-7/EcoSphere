@@ -33,6 +33,12 @@ logger = get_logger(__name__)
 
 
 @router.post(
+    "/closed-loop",
+    response_model=ClosedLoopResult,
+    status_code=status.HTTP_200_OK,
+    summary="Start autonomous closed-loop building optimization alias",
+)
+@router.post(
     "/start",
     response_model=ClosedLoopResult,
     status_code=status.HTTP_200_OK,

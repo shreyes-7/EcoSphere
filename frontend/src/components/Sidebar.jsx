@@ -2,6 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, 
+  Layers,
+  GitCommit,
   PlayCircle, 
   Cpu, 
   BarChart3, 
@@ -16,6 +18,8 @@ import {
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview Dashboard', icon: LayoutDashboard },
+  { id: 'digital-twin', label: 'AI Digital Twin & Heatmap', icon: Layers },
+  { id: 'decision-tree', label: 'XAI Live Decision Tree', icon: GitCommit },
   { id: 'simulation', label: 'Simulation Runner', icon: PlayCircle },
   { id: 'optimization', label: 'Multi-Agent Closed Loop', icon: Cpu },
   { id: 'comparison', label: 'Energy Comparison Studio', icon: BarChart3 },

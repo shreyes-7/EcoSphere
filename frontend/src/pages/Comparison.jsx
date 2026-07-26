@@ -104,11 +104,6 @@ export default function Comparison({ setToast }) {
 
   return (
     <div className="space-y-6">
-      {/* Purpose Banner */}
-      <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-200">
-        <span className="font-bold text-cyan-400 block mb-0.5">💡 Quantitative Savings Studio (Hackathon Deliverable #3)</span>
-        Select any unoptimized baseline building run on the left and compare it side-by-side with an AI-optimized closed-loop iteration on the right to prove exact percentage kWh reductions.
-      </div>
 
       {/* Compare Inputs Bar */}
       <motion.div

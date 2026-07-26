@@ -20,7 +20,7 @@ export default function Toast({ toast, onClose }) {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 pointer-events-none">
+    <div className="fixed bottom-24 right-6 z-50 pointer-events-none">
       <AnimatePresence>
         <motion.div
           key={toast.id || 'toast'}

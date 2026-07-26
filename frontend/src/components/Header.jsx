@@ -4,6 +4,8 @@ import { RefreshCw, Play, Loader2, Cpu, Zap, Activity, ShieldAlert } from 'lucid
 
 const PAGE_TITLES = {
   overview: { title: 'Autonomous Command Center', desc: 'Real-time building physics metrics & multi-agent supervisor consensus' },
+  'digital-twin': { title: 'AI Digital Twin & Interactive Heatmap', desc: 'Real-time thermal zone representation, ASHRAE-55 PMV compliance & spatial load distribution' },
+  'decision-tree': { title: 'XAI Live Decision Tree', desc: 'Transparent hierarchical decision nodes, specialist reasoning & conflict resolution' },
   simulation: { title: 'EnergyPlus Simulation Engine', desc: 'Execute physics-based building thermal & HVAC simulations' },
   optimization: { title: 'Multi-Agent Closed-Loop Engine', desc: 'Autonomous setpoint tuning & eppy AST model modification' },
   comparison: { title: 'Energy Savings Studio', desc: 'Side-by-side kWh performance & percentage reduction analysis' },

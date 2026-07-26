@@ -17,7 +17,7 @@ from backend.config import Settings, get_settings
 from backend.database import models as database_models  # noqa: F401
 from backend.database.database import initialize_database
 from backend.models.response_models import HealthResponse
-from backend.routes import agents, ai, analytics, dashboard, monitoring, optimize, simulation
+from backend.routes import agents, ai, analytics, dashboard, digital_twin, facility_manager, monitoring, occupancy, optimize, playback, rl, self_healing, simulation, xai
 from backend.utils.exceptions import EcoSphereError
 from backend.utils.logger import configure_logging, get_logger
 
@@ -108,6 +108,13 @@ def create_application(settings: Settings | None = None) -> FastAPI:
     application.include_router(agents.router)
     application.include_router(analytics.router)
     application.include_router(monitoring.router)
+    application.include_router(digital_twin.router)
+    application.include_router(occupancy.router)
+    application.include_router(rl.router)
+    application.include_router(xai.router)
+    application.include_router(self_healing.router)
+    application.include_router(facility_manager.router)
+    application.include_router(playback.router)
 
     frontend_dist_dir = Path(__file__).parent.parent / "frontend" / "dist"
     static_dir = frontend_dist_dir if frontend_dist_dir.is_dir() else (Path(__file__).parent / "static")

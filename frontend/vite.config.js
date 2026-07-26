@@ -12,6 +12,13 @@ export default defineConfig({
       '/dashboard': 'http://127.0.0.1:8000',
       '/analytics': 'http://127.0.0.1:8000',
       '/monitoring': 'http://127.0.0.1:8000',
+      '/digital-twin': 'http://127.0.0.1:8000',
+      '/occupancy': 'http://127.0.0.1:8000',
+      '/rl': 'http://127.0.0.1:8000',
+      '/xai': 'http://127.0.0.1:8000',
+      '/self-healing': 'http://127.0.0.1:8000',
+      '/facility-manager': 'http://127.0.0.1:8000',
+      '/playback': 'http://127.0.0.1:8000',
     },
   },
   build: {
