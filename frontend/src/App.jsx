@@ -130,7 +130,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen w-screen bg-[#0b0f19] text-slate-100 overflow-hidden font-sans">
+    <div className="flex h-screen w-screen bg-[#000000] amoled-grid-bg text-slate-100 overflow-hidden font-sans">
       {/* Toast Notification Container */}
       <Toast toast={toast} onClose={() => setToast(null)} />
 
