@@ -42,3 +42,14 @@ def search_agent_logs(
 def get_system_telemetry() -> SystemMetricsResponse:
     """Return agent execution latency breakdown, evaluation counts, and system metrics."""
     return MonitoringService.get_system_metrics()
+
+
+@router.post(
+    "/clear",
+    status_code=status.HTTP_200_OK,
+    summary="Clear all structured in-memory telemetry logs",
+)
+def clear_telemetry_logs() -> dict[str, str]:
+    """Purge in-memory telemetry log entries and reset counters."""
+    MonitoringService.clear_logs()
+    return {"message": "All structured telemetry logs cleared successfully."}

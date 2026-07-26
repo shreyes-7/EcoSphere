@@ -23,6 +23,12 @@ class MonitoringService:
     _counter: ClassVar[int] = 0
 
     @classmethod
+    def clear_logs(cls) -> None:
+        """Clear all in-memory structured logs and reset counter."""
+        cls._log_store.clear()
+        cls._counter = 0
+
+    @classmethod
     def record_log(
         cls,
         agent: str,
